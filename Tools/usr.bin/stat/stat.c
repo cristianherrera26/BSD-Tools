@@ -29,26 +29,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-/* config checked libc, we need the prototype as well */
-#undef HAVE_DEVNAME
-#endif
-
-#include <sys/cdefs.h>
-#if !defined(lint)
-__RCSID("$NetBSD: stat.c,v 1.55 2025/05/15 19:11:44 nia Exp $");
-#endif
-
-#if ! HAVE_NBTOOL_CONFIG_H
-#define HAVE_STRUCT_STAT_ST_FLAGS 1
-#define HAVE_STRUCT_STAT_ST_GEN 1
-#define HAVE_STRUCT_STAT_ST_BIRTHTIME 1
-#define HAVE_STRUCT_STAT_ST_BIRTHTIMENSEC 1
-#define HAVE_STRUCT_STAT_ST_MTIMENSEC 1
-#define HAVE_DEVNAME 1
-#endif /* HAVE_NBTOOL_CONFIG_H */
-
+#include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -59,13 +40,12 @@ __RCSID("$NetBSD: stat.c,v 1.55 2025/05/15 19:11:44 nia Exp $");
 #include <limits.h>
 #include <pwd.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#if HAVE_STRUCT_STAT_ST_FLAGS && !HAVE_NBTOOL_CONFIG_H
 #include <util.h>
-#endif
 #include <vis.h>
 
 #if HAVE_STRUCT_STAT_ST_FLAGS
@@ -183,7 +163,7 @@ __RCSID("$NetBSD: stat.c,v 1.55 2025/05/15 19:11:44 nia Exp $");
 #define SHOW_filename	'N'
 #define SHOW_sizerdev	'Z'
 
-static void	usage(const char *) __dead;
+static void	usage(const char *) __attribute__((noreturn));
 static void	output(const struct stat *, const char *,
 	    const char *, int, int, int);
 static int	format1(const struct stat *,	/* stat info */
@@ -625,7 +605,7 @@ fmttime(char *buf, size_t len, const char *fmt, time_t secs, long nsecs)
 		}
 		f2p += o;
 		flen -= o;
-		sl = snprintf(f2p, flen, "%.9ld", nsecs);
+		sl = snprintf(f2p, flen, "%.09ld", nsecs);
 		if (sl == -1)
 			sl = 0;
 		f2p += sl;

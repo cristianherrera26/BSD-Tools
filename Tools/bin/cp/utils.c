@@ -29,15 +29,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)utils.c	8.3 (Berkeley) 4/1/94";
-#else
-__RCSID("$NetBSD: utils.c,v 1.50 2024/01/15 17:41:06 christos Exp $");
-#endif
-#endif /* not lint */
-
 #define _ACL_PRIVATE
 #include <sys/mman.h>
 #include <sys/param.h>
@@ -46,7 +37,7 @@ __RCSID("$NetBSD: utils.c,v 1.50 2024/01/15 17:41:06 christos Exp $");
 #ifndef SMALL
 #include <sys/acl.h>
 #endif
-#include <sys/extattr.h>
+//#include <sys/extattr.h>
 
 #include <err.h>
 #include <errno.h>

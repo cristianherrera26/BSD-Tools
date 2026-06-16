@@ -147,8 +147,8 @@ const struct hash {
 };
 
 static int	hash_digest_file(char *, const struct hash *, int);
-__dead static void	requirehash(const char *);
-__dead static void	usage(void);
+__attribute__((noreturn)) static void	requirehash(const char *);
+__attribute__((noreturn)) static void	usage(void);
 
 int
 main(int argc, char **argv)

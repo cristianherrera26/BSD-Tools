@@ -29,19 +29,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1993\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)jot.c	8.1 (Berkeley) 6/6/93";
-#endif
-__RCSID("$NetBSD: jot.c,v 1.28 2020/06/14 01:26:46 kamil Exp $");
-#endif /* not lint */
-
 /*
  * jot - print sequential or random data
  *
@@ -82,7 +69,7 @@ static void	getargs(int, char *[]);
 static void	getformat(void);
 static int	getprec(char *);
 static void	putdata(double, long);
-static void	usage(void) __dead;
+static void	usage(void) __attribute__((noreturn));
 
 int
 main(int argc, char *argv[])
@@ -313,7 +300,7 @@ putdata(double x, long notlast)
 		fputs(sepstring, stdout);
 }
 
-__dead static void
+__attribute__((noreturn)) static void
 usage(void)
 {
 	(void)fprintf(stderr, "usage: %s [-cnr] [-b word] [-p precision] "

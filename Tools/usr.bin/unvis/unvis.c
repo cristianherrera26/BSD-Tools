@@ -29,19 +29,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1989, 1993\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)unvis.c	8.1 (Berkeley) 6/6/93";
-#endif
-__RCSID("$NetBSD: unvis.c,v 1.13 2010/11/27 19:46:25 christos Exp $");
-#endif /* not lint */
-
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -32,21 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT(
-"@(#) Copyright (c) 1988, 1993, 1994\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)cp.c	8.5 (Berkeley) 4/29/95";
-#else
-__RCSID("$NetBSD: cp.c,v 1.63 2024/06/07 21:01:00 andvar Exp $");
-#endif
-#endif /* not lint */
-
 /*
  * Cp copies source files to target files.
  * 
@@ -96,7 +81,7 @@ enum op { FILE_TO_FILE, FILE_TO_DIR, DIR_TO_DNE };
 static int copy(char *[], enum op, int);
 
 static void
-progress(int sig __unused)
+progress(int sig __attribute__((unused)))
 {
 
 	pinfo++;
@@ -218,7 +203,7 @@ main(int argc, char *argv[])
 	/* Set end of argument list for fts(3). */
 	argv[argc] = NULL;     
 	
-	(void)signal(SIGINFO, progress);
+	(void)signal(SIGUSR1, progress);
 	
 	/*
 	 * Cp has two distinct cases:

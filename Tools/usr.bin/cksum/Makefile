@@ -1,6 +1,3 @@
-#	$NetBSD: Makefile,v 1.17 2019/12/15 03:55:56 christos Exp $
-#	@(#)Makefile	8.2 (Berkeley) 4/28/95
-
 PROG=	cksum
 SRCS=	cksum.c crc.c md2.c md4.c md5.c sha1.c rmd160.c print.c sum1.c sum2.c
 SRCS+=	sha256.c sha384.c sha512.c
@@ -22,5 +19,8 @@ MLINKS+=cksum.1 sha256.1
 MLINKS+=cksum.1 sha384.1
 MLINKS+=cksum.1 sha512.1
 MLINKS+=cksum.1 rmd160.1
+
+CFLAGS+=-I../../../Headers
+LDADD+=-L../../../Library/LibUser -luser
 
 .include <bsd.prog.mk>
