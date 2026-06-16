@@ -29,20 +29,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1980, 1987, 1991, 1993\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)wc.c	8.2 (Berkeley) 5/2/95";
-#else
-__RCSID("$NetBSD: wc.c,v 1.37 2024/01/14 17:39:19 christos Exp $");
-#endif
-#endif /* not lint */
-
 /* wc line, word, char count and optionally longest line. */
 
 #include <sys/param.h>
@@ -71,6 +57,7 @@ typedef u_quad_t wc_count_t;
 # define WCFMT	" %7llu"
 # define WCCAST	unsigned long long
 #endif
+#define MAXBSIZE	(64 * 1024)
 
 static wc_count_t	tlinect, twordct, tcharct, tlongest;
 static bool		doline, doword, dobyte, dochar, dolongest;
@@ -79,7 +66,7 @@ static int 		rval = 0;
 static void	cnt(const char *);
 static void	print_counts(wc_count_t, wc_count_t, wc_count_t, wc_count_t,
 		    const char *);
-__dead static void	usage(void);
+__attribute__((noreturn)) static void	usage(void);
 static size_t	do_mb(wchar_t *, const char *, size_t, mbstate_t *,
 		    size_t *, const char *);
 

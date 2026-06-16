@@ -29,13 +29,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1999\
- The NetBSD Foundation, Inc.  All rights reserved.");
-__RCSID("$NetBSD: nl.c,v 1.15 2020/12/31 04:07:37 ginsbach Exp $");
-#endif    
-
 #include <errno.h>
 #include <limits.h>
 #include <locale.h>
@@ -358,7 +351,7 @@ static void
 parse_numbering(const char *argstr, int section)
 {
 	int error;
-	char errorbuf[NL_TEXTMAX];
+	char errorbuf[2048];
 
 	switch (argstr[0]) {
 	case 'a':

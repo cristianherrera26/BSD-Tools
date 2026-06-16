@@ -32,19 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1989, 1993\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)uniq.c	8.3 (Berkeley) 5/4/95";
-#endif
-__RCSID("$NetBSD: uniq.c,v 1.22 2019/04/23 17:35:10 christos Exp $");
-#endif /* not lint */
-
 #include <err.h>
 #include <errno.h>
 #include <stdio.h>
@@ -60,7 +47,7 @@ static FILE *file(const char *, const char *);
 static void show(FILE *, const char *);
 static const char *skip(const char *, size_t *);
 static void obsolete(char *[]);
-static void usage(void) __dead;
+static void usage(void) __attribute__((noreturn));
 
 int
 main (int argc, char *argv[])
