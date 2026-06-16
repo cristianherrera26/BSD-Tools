@@ -29,19 +29,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1990, 1993\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)mkfifo.c	8.2 (Berkeley) 1/5/94";
-#endif
-__RCSID("$NetBSD: mkfifo.c,v 1.13 2011/09/04 20:30:34 joerg Exp $");
-#endif /* not lint */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,7 +39,7 @@ __RCSID("$NetBSD: mkfifo.c,v 1.13 2011/09/04 20:30:34 joerg Exp $");
 #include <unistd.h>
 #include <err.h>
 
-__dead static void usage(void);
+__attribute__((noreturn)) static void usage(void);
 
 int
 main(int argc, char *argv[])

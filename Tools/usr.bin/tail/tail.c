@@ -30,19 +30,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1991, 1993\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)tail.c	8.1 (Berkeley) 6/6/93";
-#endif
-__RCSID("$NetBSD: tail.c,v 1.21 2023/08/07 19:11:25 tnn Exp $");
-#endif /* not lint */
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -56,7 +43,7 @@ int fflag, rflag, rval;
 const char *fname;
 
 static void obsolete(char **);
-static void usage(void) __dead;
+static void usage(void) __attribute__((noreturn));
 
 int
 main(int argc, char *argv[])

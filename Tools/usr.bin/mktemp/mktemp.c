@@ -36,10 +36,6 @@
  * more like the OpenBSD version - which was first to publish the interface.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-
 #include <sys/cdefs.h>
 #include <sys/types.h>
 #include <err.h>
@@ -49,11 +45,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#if defined(__RCSID) && !defined(__lint)
-__RCSID("$NetBSD: mktemp.c,v 1.12 2012/11/03 13:34:08 christos Exp $");
-#endif /* !__lint */
-
-static void usage(void) __dead;
+static void usage(void) __attribute__((noreturn));
 
 int
 main(int argc, char **argv)

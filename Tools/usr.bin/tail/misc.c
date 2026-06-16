@@ -30,14 +30,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)misc.c	8.1 (Berkeley) 6/6/93";
-#endif
-__RCSID("$NetBSD: misc.c,v 1.7 2011/09/03 09:02:20 christos Exp $");
-#endif /* not lint */
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>

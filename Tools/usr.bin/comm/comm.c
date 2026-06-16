@@ -32,19 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1989, 1993, 1994\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)comm.c	8.4 (Berkeley) 5/4/95";
-#endif
-__RCSID("$NetBSD: comm.c,v 1.20 2012/09/05 04:01:23 simonb Exp $");
-#endif /* not lint */
-
 #include <err.h>
 #include <limits.h>
 #include <locale.h>
@@ -59,7 +46,7 @@ static const char *tabs[] = { "", "\t", "\t\t" };
 
 static FILE   *file(const char *);
 static void	show(FILE *, const char *, char *);
-__dead static void	usage(void);
+__attribute__((noreturn)) static void	usage(void);
 static char   *getnextln(char *buf, FILE *);
 
 int

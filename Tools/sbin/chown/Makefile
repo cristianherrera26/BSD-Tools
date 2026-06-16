@@ -4,10 +4,7 @@
 PROG=	chown
 CPPFLAGS+=-DSUPPORT_DOT
 MAN=	chgrp.1 chown.8
-SYMLINKS+=	${BINDIR}/chown /bin/chgrp
-
-SYMLINKS+=	${BINDIR}/chown /usr/bin/chgrp
-SYMLINKS+=	${BINDIR}/chown /usr/sbin/chown
+SYMLINKS=	${BINDIR}/chown ${BINDIR}/chgrp
 
 CFLAGS+=-I../../../Headers
 LDADD+=-L../../../Library/LibUser -luser

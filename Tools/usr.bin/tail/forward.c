@@ -32,19 +32,11 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)forward.c	8.1 (Berkeley) 6/6/93";
-#endif
-__RCSID("$NetBSD: forward.c,v 1.34 2024/01/14 17:37:32 christos Exp $");
-#endif /* not lint */
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/mman.h>
-#include <sys/event.h>
+//#include <sys/event.h>
 
 #include <limits.h>
 #include <fcntl.h>
@@ -88,10 +80,6 @@ void
 forward(FILE *fp, enum STYLE style, off_t off, struct stat *sbp)
 {
 	int ch, n;
-	int kq=-1, action=USE_SLEEP;
-	struct stat statbuf;
-	struct kevent ev[2];
-
 	switch(style) {
 	case FBYTES:
 		if (off == 0)
@@ -171,98 +159,15 @@ forward(FILE *fp, enum STYLE style, off_t off, struct stat *sbp)
 		break;
 	}
 
-	if (fflag) {
-		kq = kqueue();
-		if (kq < 0)
-			xerr(1, "kqueue");
-		action = ADD_EVENTS;
+	while ((ch = getc(fp)) != EOF)  {
+		if (putchar(ch) == EOF)
+			oerr();
 	}
-
-	for (;;) {
-		while ((ch = getc(fp)) != EOF)  {
-			if (putchar(ch) == EOF)
-				oerr();
-		}
-		if (ferror(fp)) {
-			ierr();
-			return;
-		}
-		(void)fflush(stdout);
-		if (!fflag)
-			break;
-
-		clearerr(fp);
-
-		switch (action) {
-		case ADD_EVENTS:
-			n = 0;
-
-			memset(ev, 0, sizeof(ev));
-			if (fflag == 2 && fp != stdin) {
-				EV_SET(&ev[n], fileno(fp), EVFILT_VNODE,
-				    EV_ADD | EV_ENABLE | EV_CLEAR,
-				    NOTE_DELETE | NOTE_RENAME, 0, 0);
-				n++;
-			}
-			EV_SET(&ev[n], fileno(fp), EVFILT_READ,
-			    EV_ADD | EV_ENABLE, 0, 0, 0);
-			n++;
-
-			if (kevent(kq, ev, n, NULL, 0, NULL) == -1) {
-				close(kq);
-				kq = -1;
-				action = USE_SLEEP;
-			} else {
-				action = USE_KQUEUE;
-			}
-			break;
-
-		case USE_KQUEUE:
-			if (kevent(kq, NULL, 0, ev, 1, NULL) == -1)
-				xerr(1, "kevent");
-
-			if (ev[0].filter == EVFILT_VNODE) {
-				/* file was rotated, wait until it reappears */
-				action = USE_SLEEP;
-			} else if (ev[0].data < 0) {
-				/* file shrank, reposition to end */
-				if (fseek(fp, 0L, SEEK_END) == -1) {
-					ierr();
-					return;
-				}
-			}
-			break;
-
-		case USE_SLEEP:
-			/*
-			 * We pause for one second after displaying any data
-			 * that has accumulated since we read the file.
-			 */
-                	(void) sleep(1);
-
-			if (fflag == 2 && fp != stdin &&
-			    stat(fname, &statbuf) != -1) {
-				if (statbuf.st_ino != sbp->st_ino ||
-				    statbuf.st_dev != sbp->st_dev ||
-				    statbuf.st_rdev != sbp->st_rdev ||
-				    statbuf.st_nlink == 0) {
-					fp = freopen(fname, "r", fp);
-					if (fp == NULL) {
-						ierr();
-						goto out;
-					}
-					*sbp = statbuf;
-					if (kq != -1)
-						action = ADD_EVENTS;
-				} else if (kq != -1)
-					action = USE_KQUEUE;
-			}
-			break;
-		}
+	if (ferror(fp)) {
+		ierr();
+		return;
 	}
-out:
-	if (fflag && kq != -1)
-		close(kq);
+	(void)fflush(stdout);
 }
 
 /*

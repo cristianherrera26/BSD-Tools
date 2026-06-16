@@ -45,11 +45,6 @@
  * assumption about the input.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__RCSID("$NetBSD: csplit.c,v 1.7 2017/07/30 23:02:53 cheusov Exp $");
-#endif
-
 #include <sys/types.h>
 
 #include <ctype.h>
@@ -73,7 +68,7 @@ static char	*get_line(void);
 static void	 handlesig(int);
 static FILE	*newfile(void);
 static void	 toomuch(FILE *, long);
-static void	 usage(void) __dead;
+static void	 usage(void) __attribute__((noreturn));
 
 /*
  * Command line options
@@ -224,7 +219,7 @@ usage(void)
 	exit(1);
 }
 
-__dead static void
+__attribute__((noreturn)) static void
 handlesig(int sig)
 {
 	char msg[BUFSIZ];
@@ -235,7 +230,6 @@ handlesig(int sig)
 	if (len < sizeof(msg))
 		(void)write(STDERR_FILENO, msg, len);
 	cleanup();
-	(void)raise_default_signal(sig);
 	_exit(2);
 }
 
@@ -388,7 +382,7 @@ do_rexp(const char *expr)
 	} else
 		ofs = 0;
 
-	if (regcomp(&cre, re, REG_BASIC|REG_NOSUB) != 0)
+	if (regcomp(&cre, re, 0000|REG_NOSUB) != 0)
 		errx(1, "%s: bad regular expression", re);
 
 	if (*expr == '/')

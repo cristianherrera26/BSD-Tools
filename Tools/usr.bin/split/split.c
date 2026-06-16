@@ -29,19 +29,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1987, 1993, 1994\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)split.c	8.3 (Berkeley) 4/25/94";
-#endif
-__RCSID("$NetBSD: split.c,v 1.33 2024/02/09 22:08:38 andvar Exp $");
-#endif /* not lint */
-
 #include <sys/param.h>
 #include <sys/stat.h>
 
@@ -55,6 +42,7 @@ __RCSID("$NetBSD: split.c,v 1.33 2024/02/09 22:08:38 andvar Exp $");
 #include <unistd.h>
 
 #define DEFLINE	1000		/* Default num lines per file. */
+#define MAXBSIZE	(64 * 1024)
 
 static int file_open;		/* If a file is open. */
 static int ifd = STDIN_FILENO, ofd = -1; /* Input/output file descriptors. */
@@ -63,10 +51,10 @@ static size_t sfxlen = 2;	/* Suffix length. */
 static int autosfx = 1;		/* Whether to auto-extend the suffix length. */
 
 static void newfile(void);
-static void split1(off_t, int) __dead;
-static void split2(off_t) __dead;
-static void split3(off_t) __dead;
-static void usage(void) __dead;
+static void split1(off_t, int) __attribute__((noreturn));
+static void split2(off_t) __attribute__((noreturn));
+static void split3(off_t) __attribute__((noreturn));
+static void usage(void) __attribute__((noreturn));
 static size_t bigwrite(int, void const *, size_t);
 
 int

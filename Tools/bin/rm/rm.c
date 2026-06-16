@@ -29,20 +29,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1990, 1993, 1994\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)rm.c	8.8 (Berkeley) 4/27/95";
-#else
-__RCSID("$NetBSD: rm.c,v 1.58 2026/04/26 01:49:28 jschauma Exp $");
-#endif
-#endif /* not lint */
-
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -60,7 +46,7 @@ __RCSID("$NetBSD: rm.c,v 1.58 2026/04/26 01:49:28 jschauma Exp $");
 #include <string.h>
 #include <unistd.h>
 
-static int dflag, eval, fflag, iflag, Pflag, stdin_ok, vflag, Wflag;
+static int dflag, eval, fflag, iflag, Pflag, stdin_ok, vflag;
 static int xflag;
 static sig_atomic_t pinfo;
 
@@ -70,7 +56,7 @@ static void	progress(int);
 static void	rm_file(char **);
 static int	rm_overwrite(char *, struct stat *);
 static void	rm_tree(char **);
-__dead static void	usage(void);
+__attribute__((noreturn)) static void	usage(void);
 
 /*
  * For the sake of the `-f' flag, check whether an error number indicates the
@@ -96,7 +82,7 @@ main(int argc, char *argv[])
 	(void)setlocale(LC_ALL, "");
 
 	rflag = 0;
-	while ((ch = getopt(argc, argv, "dfiPRrvWx")) != -1)
+	while ((ch = getopt(argc, argv, "dfiPRrvx")) != -1)
 		switch (ch) {
 		case 'd':
 			dflag = 1;
@@ -122,9 +108,6 @@ main(int argc, char *argv[])
 		case 'x':
 			xflag = 1;
 			break;
-		case 'W':
-			Wflag = 1;
-			break;
 		case '?':
 		default:
 			usage();
@@ -138,7 +121,7 @@ main(int argc, char *argv[])
 		usage();
 	}
 
-	(void)signal(SIGINFO, progress);
+	(void)signal(SIGUSR1, progress);
 
 	checkdot(argv);
 
@@ -177,8 +160,6 @@ rm_tree(char **argv)
 	flags = FTS_PHYSICAL;
 	if (!needstat)
 		flags |= FTS_NOSTAT;
-	if (Wflag)
-		flags |= FTS_WHITEOUT;
 	if (xflag)
 		flags |= FTS_XDEV;
 	if ((fts = fts_open(argv, flags, NULL)) == NULL)
@@ -246,13 +227,6 @@ rm_tree(char **argv)
 			if (rval != 0 && fflag && errno == ENOENT)
 				continue;
 			break;
-
-		case FTS_W:
-			rval = undelete(p->fts_accpath);
-			if (rval != 0 && fflag && errno == ENOENT)
-				continue;
-			break;
-
 		default:
 			if (Pflag) {
 				if (rm_overwrite(p->fts_accpath, NULL))
@@ -290,18 +264,11 @@ rm_file(char **argv)
 	while ((f = *argv++) != NULL) {
 		/* Assume if can't stat the file, can't unlink it. */
 		if (lstat(f, &sb)) {
-			if (Wflag) {
-				sb.st_mode = S_IFWHT|S_IWUSR|S_IRUSR;
-			} else {
-				if (!fflag || !NONEXISTENT(errno)) {
-					warn("%s", f);
-					eval = 1;
-				}
-				continue;
+			if (!fflag || !NONEXISTENT(errno)) {
+				warn("%s", f);
+				eval = 1;
 			}
-		} else if (Wflag) {
-			warnx("%s: %s", f, strerror(EEXIST));
-			eval = 1;
+
 			continue;
 		}
 
@@ -310,10 +277,6 @@ rm_file(char **argv)
 			eval = 1;
 			continue;
 		}
-		if (!fflag && !S_ISWHT(sb.st_mode) && !check(f, f, &sb, "remove"))
-			continue;
-		if (S_ISWHT(sb.st_mode))
-			rval = undelete(f);
 		else if (S_ISDIR(sb.st_mode))
 			rval = rmdir(f);
 		else {
@@ -600,14 +563,14 @@ static void
 usage(void)
 {
 
-	(void)fprintf(stderr, "usage: %s [-f|-i] [-dPRrvWx] file ...\n",
+	(void)fprintf(stderr, "usage: %s [-f|-i] [-dPRrvx] file ...\n",
 	    getprogname());
 	exit(1);
 	/* NOTREACHED */
 }
 
 static void
-progress(int sig __unused)
+progress(int sig __attribute__((unused)))
 {
 	
 	pinfo++;

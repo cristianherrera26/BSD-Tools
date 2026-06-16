@@ -29,14 +29,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)str.c	8.2 (Berkeley) 4/28/95";
-#endif
-__RCSID("$NetBSD: str.c,v 1.30 2018/05/26 11:20:30 leot Exp $");
-#endif /* not lint */
-
 #include <sys/types.h>
 
 #include <err.h>
@@ -247,7 +239,7 @@ genclass(const char *class, size_t len)
 	/* Find the class */
 	key.name = class;
 	key.len = len;
-	cp = bsearch(&key, classes, __arraycount(classes), sizeof(classes[0]),
+	cp = bsearch(&key, classes, (sizeof(classes) / sizeof(classes[0])), sizeof(classes[0]),
 		     c_class);
 	if (cp == NULL) {
 		errx(1, "unknown class %.*s", (int)len, class);

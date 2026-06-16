@@ -29,22 +29,8 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1993\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)whereis.c	8.3 (Berkeley) 5/4/95";
-#endif
-__RCSID("$NetBSD: whereis.c,v 1.22 2025/06/01 15:45:31 jschauma Exp $");
-#endif /* not lint */
-
 #include <sys/param.h>
 #include <sys/stat.h>
-#include <sys/sysctl.h>
 
 #include <err.h>
 #include <errno.h>
@@ -53,15 +39,16 @@ __RCSID("$NetBSD: whereis.c,v 1.22 2025/06/01 15:45:31 jschauma Exp $");
 #include <string.h>
 #include <unistd.h>
 
-static void usage(void) __dead;
+#define DEF_PATH	"/usr/bin:/usr/sbin:/bin:/sbin"
+static void usage(void) __attribute__((noreturn));
 
 int
 main(int argc, char *argv[])
 {
 	struct stat sb;
 	size_t len;
-	int ch, mib[2];
-	char *p, *std, path[MAXPATHLEN];
+	int ch;
+	char *p, std[MAXPATHLEN], path[MAXPATHLEN];
 	const char *t;
 	int which = strcmp(getprogname(), "which") == 0;
 	int useenvpath = which, found = 0;
@@ -94,20 +81,13 @@ main(int argc, char *argv[])
 		usage();
 
  	if (useenvpath) {
- 		if ((std = getenv("PATH")) == NULL)
+		char *tmp;
+ 		if ((tmp = getenv("PATH")) == NULL)
  			errx(1, "PATH environment variable is not set");
+		snprintf(std, sizeof(std), "%s", tmp);
 	} else {
 		/* Retrieve the standard path. */
-		mib[0] = CTL_USER;
-		mib[1] = USER_CS_PATH;
-		if (sysctl(mib, 2, NULL, &len, NULL, 0) == -1)
-			err(1, "sysctl: user.cs_path");
-		if (len == 0)
-			errx(1, "sysctl: user.cs_path (zero length)");
-		if ((std = malloc(len)) == NULL)
-			err(1, NULL);
-		if (sysctl(mib, 2, std, &len, NULL, 0) == -1)
-			err(1, "sysctl: user.cs_path");
+		snprintf(std, sizeof(std), "%s", DEF_PATH);
 	}
 
 	/* For each path, for each program... */
