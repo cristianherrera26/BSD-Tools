@@ -5,6 +5,7 @@
 
 time_t parsedate(const char *p, const time_t *now, const int *zone);
 
+#define timespecclear(tsp)      (tsp)->tv_sec = (time_t)((tsp)->tv_nsec = 0L)
 #define timespecadd(tsp, usp, vsp)                                      \
         do {                                                            \
                 (vsp)->tv_sec = (tsp)->tv_sec + (usp)->tv_sec;          \

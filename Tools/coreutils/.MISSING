@@ -1,0 +1,5 @@
+# MISSING: b2sum, base32, basenc, cksum, cp, 
+# dd, df, dir, install, ls, md5sum,
+# numfmt, ptx, (sha)*sum, shred, shuf, sort,
+# stdbuf, stty, timeout, touch, truncate, 
+# tsort, vdir

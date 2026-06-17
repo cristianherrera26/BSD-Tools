@@ -1,7 +1,7 @@
 LIB=user
 SRCS=progname.c setmode.c fparseln.c fgetln.c fgetwln.c reallocarr.c \
 	parsedate.y strmode.c user.c group.c getbsize.c hnumber.c \
-	vis.c unvis.c
+	vis.c unvis.c strpct.c
 
 YACC=byacc
 CFLAGS+=-I../../Headers
