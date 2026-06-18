@@ -16,6 +16,7 @@ SRCS=	alloc.c c_ksh.c c_sh.c c_test.c c_ulimit.c edit.c emacs.c \
 	var.c version.c vi.c
 DPSRCS=	emacs.out siglist.out
 DPSRCS+=ksh.1
+SYMLINKS=	${BINDIR}/ksh ${BINDIR}/sh
 
 USETBL=		# yes, needed for the man page.
 

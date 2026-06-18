@@ -1,6 +1,6 @@
 PROG=	tail
 SRCS=	forward.c misc.c read.c reverse.c tail.c
-LINKS=	${BINDIR}/tail ${BINDIR}/tac
+SYMLINKS=	${BINDIR}/tail ${BINDIR}/tac
 MAN=	tail.1 tac.1
 
 CFLAGS+=-I../../../Headers

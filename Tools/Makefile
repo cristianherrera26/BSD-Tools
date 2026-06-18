@@ -1,5 +1,3 @@
-SUBDIR=coreutils diffutils findutils miscutils
-SUBDIR+=grep patch sed
-SUBDIR+=ksh
+SUBDIR=coreutils diffutils findutils miscutils grep patch sed ksh util-linux
 
 .include <bsd.subdir.mk>

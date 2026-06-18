@@ -1,6 +1,6 @@
 PROG=	stat
 
-LINKS=	${BINDIR}/stat ${BINDIR}/readlink
+SYMLINKS=	${BINDIR}/stat ${BINDIR}/readlink
 MAN=	stat.1 readlink.1
 
 CFLAGS+=-I../../../Headers

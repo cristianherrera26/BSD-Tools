@@ -9,6 +9,9 @@ void setprogname(const char *progname);
 int reallocarr(void *ptr, size_t number, size_t size);
 char *getbsize(int *headerlenp, long *blocksizep);
 int humanize_number(char *buf, size_t len, int64_t bytes, const char *suffix, int scale, int flags);
+long long strsuftoll(const char *desc, const char *val, long long min, long long max);
+long long strsuftollx(const char *desc, const char *val, long long min, long long max, char *ebuf, size_t ebuflen);
+
 
 #define HN_DECIMAL              0x01
 #define HN_NOSPACE              0x02

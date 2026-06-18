@@ -5,7 +5,7 @@
 PROG=	grep
 SRCS=	fastgrep.c file.c grep.c queue.c util.c
 
-LINKS=	${BINDIR}/grep ${BINDIR}/egrep	\
+SYMLINKS=	${BINDIR}/grep ${BINDIR}/egrep	\
 	${BINDIR}/grep ${BINDIR}/fgrep	\
 	${BINDIR}/grep ${BINDIR}/zgrep	\
 	${BINDIR}/grep ${BINDIR}/zegrep	\

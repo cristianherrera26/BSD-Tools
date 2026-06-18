@@ -7,8 +7,8 @@ WARNS=6
 PROG=	sed
 SRCS=	compile.c main.c misc.c process.c
 
-CFLAGS+=-I../../../Headers
-LDADD+=-L../../../Library/LibUser -luser
+CFLAGS+=-I../../Headers
+LDADD+=-L../../Library/LibUser -luser
 
 .if (${HOSTPROG:U} == "")
 DPADD+= ${LIBUTIL}

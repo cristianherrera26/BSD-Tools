@@ -6,8 +6,8 @@ MAN=	id.1 groups.1 whoami.1
 CFLAGS+=-I../../../Headers
 LDADD+=-L../../../Library/LibUser -luser
 
-LINKS=   ${BINDIR}/id ${BINDIR}/groups
-LINKS+=  ${BINDIR}/id ${BINDIR}/whoami
+SYMLINKS=   ${BINDIR}/id ${BINDIR}/groups
+SYMLINKS+=  ${BINDIR}/id ${BINDIR}/whoami
 
 COPTS.id.c += -Wno-format-nonliteral
 
