@@ -1,0 +1,41 @@
+executable(
+	'ksh',
+	'alloc.c',
+	'c_ksh.c',
+	'c_sh.c',
+	'c_test.c',
+	'c_ulimit.c',
+	'edit.c',
+	'emacs.c',
+	'eval.c',
+	'exec.c',
+	'expr.c',
+	'history.c',
+	'io.c',
+	'jobs.c',
+	'lex.c',
+	'mail.c',
+	'main.c',
+	'misc.c',
+	'path.c',
+	'shf.c',
+	'syn.c',
+	'table.c',
+	'trap.c',
+	'tree.c',
+	'tty.c',
+	'var.c',
+	'version.c',
+	'vi.c',
+	include_directories : incdir,
+	c_args : [ '-Wno-deprecated-non-prototype' ],
+	link_with : libcompat,
+	install : true,
+	install_dir : get_option('bindir')
+)
+
+install_symlink(
+	'sh',
+	pointing_to: 'ksh',
+	install_dir: get_option('bindir')
+)

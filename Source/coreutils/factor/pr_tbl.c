@@ -1,0 +1,1 @@
+../../miscutils/primes/pr_tbl.c

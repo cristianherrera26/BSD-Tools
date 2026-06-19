@@ -1,0 +1,85 @@
+SUBDIRS = [
+	'base64', 
+	'basename', 
+	'cat',
+	'chmod', 
+	'chown', 
+	'chroot',
+	'comm',
+	'cp',
+	'csplit',
+	'cut',
+	'date',
+	'dd',
+	'dirname',
+	'du',
+	'echo',
+	'env',
+	'expand',
+	'expr',
+	'false',
+	'fmt',
+	'fold',
+	'head',
+	'hostid',
+	'hostname',
+	'id',
+	'join',
+	'link',
+	'ln',
+	'logname',
+	'ls',
+	'mkdir',
+	'mkfifo',
+	'mknod',
+	'mktemp',
+	'mv',
+	'nice',
+	'nl',
+	'nohup',
+	'nproc',
+	'paste',
+	'pathchk',
+	'pr',
+	'printenv',
+	'printf',
+	'pwd',
+	'realpath',
+	'rm',
+	'rmdir',
+	'seq',
+	'sleep',
+	'split',
+	'stat',
+	'stty',
+	'sync',
+	'tail',
+	'tee',
+	'test',
+	'timeout',
+	'touch',
+	'tr',
+	'true',
+	'tty',
+	'uname',
+	'unexpand',
+	'uniq',
+	'unlink',
+	'users',
+	'wc',
+	'who',
+	'yes'
+]
+
+if libcrypto.found() and libcrypt.found()
+	SUBDIRS += 'factor'
+endif
+
+if libmd.found()
+	SUBDIRS += [ 'cksum', 'xinstall' ]
+endif
+
+
+foreach i : SUBDIRS
+	subdir(i)
+endforeach
