@@ -35,10 +35,15 @@
  *	@(#)pax.h	8.2 (Berkeley) 4/18/94
  */
 
+#ifndef _PAX_H
+#define _PAX_H	1
+
 #if ! HAVE_NBTOOL_CONFIG_H
 #define HAVE_LUTIMES 1
 #define HAVE_STRUCT_STAT_ST_FLAGS 1
 #endif
+
+#include <inttypes.h>
 
 /*
  * BSD PAX global data structures and constants.
@@ -105,7 +110,8 @@ typedef struct pattern {
  * may be required if and when the supporting operating system removes all
  * restrictions on the length of pathnames it will resolve.
  */
-typedef struct {
+
+typedef struct ARCHD {
 	int nlen;			/* file name length */
 	char name[PAXPATHLEN+1];	/* file name */
 	int ln_nlen;			/* link name length */
@@ -146,6 +152,7 @@ typedef struct {
  * independent of the archive format. Data flow in and out of the format
  * dependent routines pass pointers to ARCHD structure (described below).
  */
+
 typedef struct {
 	const char *name;	/* name of format, this is the name the user */
 				/* gives to -x option to select it. */
@@ -281,3 +288,4 @@ typedef struct oplist {
 #define TOP_HALF	0xffffffff00000000ULL
 #define BOTTOM_HALF	0x00000000ffffffffULL
 
+#endif

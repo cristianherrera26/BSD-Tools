@@ -33,19 +33,6 @@
  * SUCH DAMAGE.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-
-#include <sys/cdefs.h>
-#if !defined(lint)
-#if 0
-static char sccsid[] = "@(#)ar_io.c	8.2 (Berkeley) 4/18/94";
-#else
-__RCSID("$NetBSD: ar_io.c,v 1.60 2023/07/20 20:10:59 lukem Exp $");
-#endif
-#endif /* not lint */
-
 #include <sys/param.h>
 #include <sys/ioctl.h>
 #ifdef HAVE_SYS_MTIO_H

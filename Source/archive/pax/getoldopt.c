@@ -9,20 +9,7 @@
  * in the Public Domain for your edification and enjoyment.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-
-#include <sys/cdefs.h>
-#if !defined(lint)
-__RCSID("$NetBSD: getoldopt.c,v 1.24 2024/10/03 20:14:01 rillig Exp $");
-#endif /* not lint */
-
-#if HAVE_NBTOOL_CONFIG_H
-#include "compat_getopt.h"
-#else
 #include <getopt.h>
-#endif
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

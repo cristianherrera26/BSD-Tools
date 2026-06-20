@@ -33,19 +33,6 @@
  * SUCH DAMAGE.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-
-#include <sys/cdefs.h>
-#if !defined(lint)
-#if 0
-static char sccsid[] = "@(#)sel_subs.c	8.1 (Berkeley) 5/31/93";
-#else
-__RCSID("$NetBSD: sel_subs.c,v 1.24 2011/08/31 16:24:54 plunky Exp $");
-#endif
-#endif /* not lint */
-
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>

@@ -39,8 +39,13 @@
  * External references from each source file
  */
 
-#include <sys/cdefs.h>
+#include <sys/stat.h>
+#include <stdint.h>
 #include <err.h>
+
+#ifndef _PAX_H
+#include "pax.h"
+#endif
 
 /*
  * ar_io.c

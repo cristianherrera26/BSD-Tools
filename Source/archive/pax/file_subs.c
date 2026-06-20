@@ -33,19 +33,6 @@
  * SUCH DAMAGE.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-
-#include <sys/cdefs.h>
-#if !defined(lint)
-#if 0
-static char sccsid[] = "@(#)file_subs.c	8.1 (Berkeley) 5/31/93";
-#else
-__RCSID("$NetBSD: file_subs.c,v 1.66 2024/08/05 13:37:26 riastradh Exp $");
-#endif
-#endif /* not lint */
-
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
@@ -272,11 +259,6 @@ file_close(ARCHD *arcn, int fd)
 		    tmp_name, arcn->name);
 		(void)unlink(tmp_name);
 	}
-
-#if HAVE_STRUCT_STAT_ST_FLAGS
-	if (pfflags && arcn->type != PAX_SLK)
-		set_chflags(arcn->name, arcn->sb.st_flags);
-#endif
 
 	free(arcn->tmp_name);
 	arcn->tmp_name = NULL;
@@ -642,10 +624,6 @@ badlink:
 		set_ftime(arcn->name, arcn->sb.st_mtime,
 		    arcn->sb.st_atime, 0, (arcn->type == PAX_SLK) ? 1 : 0);
 
-#if HAVE_STRUCT_STAT_ST_FLAGS
-	if (pfflags && arcn->type != PAX_SLK)
-		set_chflags(arcn->name, arcn->sb.st_flags);
-#endif
 	return 0;
 }
 

@@ -1,0 +1,1 @@
+../../coreutils/xinstall/getid.c

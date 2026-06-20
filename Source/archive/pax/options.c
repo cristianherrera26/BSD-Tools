@@ -33,36 +33,20 @@
  * SUCH DAMAGE.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-
-#include <sys/cdefs.h>
-#if !defined(lint)
-#if 0
-static char sccsid[] = "@(#)options.c	8.2 (Berkeley) 4/18/94";
-#else
-__RCSID("$NetBSD: options.c,v 1.122 2025/05/04 20:06:23 rillig Exp $");
-#endif
-#endif /* not lint */
-
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/param.h>
 #include <ctype.h>
 #include <errno.h>
-#if HAVE_NBTOOL_CONFIG_H
-#include "compat_getopt.h"
-#else
 #include <getopt.h>
-#endif
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
+#include <time.h>
 #include <inttypes.h>
 #include <paths.h>
 #include <util.h>
@@ -71,9 +55,7 @@ __RCSID("$NetBSD: options.c,v 1.122 2025/05/04 20:06:23 rillig Exp $");
 #include "cpio.h"
 #include "tar.h"
 #include "extern.h"
-#ifndef SMALL
 #include "mtree.h"
-#endif	/* SMALL */
 
 char *chdname;
 #if !HAVE_NBTOOL_CONFIG_H
@@ -100,12 +82,12 @@ static char *get_line(FILE *fp);
 static int set_tstamp(const char *, struct stat *);
 #endif
 static void pax_options(int, char **);
-__dead static void pax_usage(void);
+static void pax_usage(void);
 static void tar_options(int, char **);
-__dead static void tar_usage(void);
+static void tar_usage(void);
 #ifndef NO_CPIO
 static void cpio_options(int, char **);
-__dead static void cpio_usage(void);
+static void cpio_usage(void);
 #endif
 
 /* errors from get_line */
@@ -1398,7 +1380,7 @@ tar_options(int argc, char **argv)
 	if (!fstdin && ((arcname == NULL) || (*arcname == '\0'))) {
 		arcname = getenv("TAPE");
 		if ((arcname == NULL) || (*arcname == '\0'))
-			arcname = _PATH_DEFTAPE;
+			errx(1, "TAPE variable is not set.");
 	}
 }
 
@@ -1936,6 +1918,7 @@ bad_opt(void)
 #endif
 	else
 		pax_usage();
+	return 1;
 }
 
 /*

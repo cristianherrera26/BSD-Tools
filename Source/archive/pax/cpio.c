@@ -33,19 +33,7 @@
  * SUCH DAMAGE.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-
-#include <sys/cdefs.h>
-#if !defined(lint)
-#if 0
-static char sccsid[] = "@(#)cpio.c	8.1 (Berkeley) 5/31/93";
-#else
-__RCSID("$NetBSD: cpio.c,v 1.22 2012/08/09 08:09:21 christos Exp $");
-#endif
-#endif /* not lint */
-
+#include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>

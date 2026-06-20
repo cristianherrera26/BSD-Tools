@@ -33,21 +33,6 @@
  * SUCH DAMAGE.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-
-#include <sys/cdefs.h>
-#if !defined(lint)
-__COPYRIGHT("@(#) Copyright (c) 1992, 1993\
- The Regents of the University of California.  All rights reserved.");
-#if 0
-static char sccsid[] = "@(#)pax.c	8.2 (Berkeley) 4/18/94";
-#else
-__RCSID("$NetBSD: pax.c,v 1.52 2024/08/05 13:37:27 riastradh Exp $");
-#endif
-#endif /* not lint */
-
 #include <sys/param.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
@@ -346,7 +331,7 @@ main(int argc, char **argv)
  *	never....
  */
 
-__dead static void
+static void
 sig_cleanup(int which_sig)
 {
 	/*
@@ -370,7 +355,6 @@ sig_cleanup(int which_sig)
 	if (tflag)
 		atdir_end();
 
-	(void)raise_default_signal(which_sig);
 	exit(1);
 }
 

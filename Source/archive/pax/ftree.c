@@ -62,19 +62,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-
-#include <sys/cdefs.h>
-#if !defined(lint)
-#if 0
-static char sccsid[] = "@(#)ftree.c	8.2 (Berkeley) 4/18/94";
-#else
-__RCSID("$NetBSD: ftree.c,v 1.46 2024/09/08 17:28:36 rillig Exp $");
-#endif
-#endif /* not lint */
-
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
@@ -502,10 +489,6 @@ next_file(ARCHD *arcn)
 			statbuf.st_gid = ftnode->st_gid;
 		if (ftnode->flags & (F_UID | F_UNAME))
 			statbuf.st_uid = ftnode->st_uid;
-#if HAVE_STRUCT_STAT_ST_FLAGS
-		if (ftnode->flags & F_FLAGS)
-			statbuf.st_flags = ftnode->st_flags;
-#endif
 		if (ftnode->flags & F_TIME)
 #if BSD4_4 && !HAVE_NBTOOL_CONFIG_H
 			statbuf.st_mtimespec = ftnode->st_mtimespec;
