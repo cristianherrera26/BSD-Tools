@@ -4,6 +4,10 @@ project('BSD-Tools', 'c',
 
 cc = meson.get_compiler('c')
 
+if host_machine.system() != 'linux'
+	warning('This project only has been tested on linux')
+endif
+
 libz = cc.find_library(
 	'z',
 	required : false

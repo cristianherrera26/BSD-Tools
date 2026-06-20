@@ -16,12 +16,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-#include <sys/cdefs.h>
-__RCSID("$NetBSD: ohash.c,v 1.2 2026/06/11 14:11:52 christos Exp $");
-
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>

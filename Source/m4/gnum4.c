@@ -20,12 +20,6 @@
 /*
  * functions needed to support gnu-m4 extensions, including a fake freezing
  */
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-#include <sys/cdefs.h>
-__RCSID("$NetBSD: gnum4.c,v 1.14 2026/06/10 22:25:02 christos Exp $");
-
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -193,7 +187,7 @@ static void addchars(const char *, size_t);
 static void addchar(int);
 static char *twiddle(const char *);
 static char *getstring(void);
-static void exit_regerror(int, regex_t *, const char *) __dead;
+static void exit_regerror(int, regex_t *, const char *);
 static void do_subst(const char *, regex_t *, const char *, const char *,
     regmatch_t *);
 static void do_regexpindex(const char *, regex_t *, const char *, regmatch_t *);

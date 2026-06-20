@@ -64,14 +64,9 @@
  *	@(#)diff3.c	8.1 (Berkeley) 6/6/93
  */
 
-#if 0
-#ifndef lint
-static char sccsid[] = "@(#)diff3.c	8.1 (Berkeley) 6/6/93";
-#endif
-#endif /* not lint */
 #include <sys/cdefs.h>
 #include <sys/types.h>
-#include <sys/event.h>
+#include <sys/poll.h>
 #include <sys/wait.h>
 
 #include <ctype.h>
@@ -84,6 +79,8 @@ static char sccsid[] = "@(#)diff3.c	8.1 (Berkeley) 6/6/93";
 #include <inttypes.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 
 
 /*
@@ -128,6 +125,7 @@ static char *overlap;
 static int  overlapcnt;
 static FILE *fp[3];
 static int cline[3];		/* # of the last-read line in each file (0-2) */
+static int sigpipe[2];
 /*
  * The latest known correspondence between line numbers of the 3 files
  * is stored in last[1-3];
@@ -153,9 +151,9 @@ static void keep(int, struct range *);
 static void merge(int, int);
 static void prange(struct range *, bool);
 static void repos(int);
-static void edscript(int) __dead;
-static void Ascript(int) __dead;
-static void mergescript(int) __dead;
+static void edscript(int);
+static void Ascript(int);
+static void mergescript(int);
 static void increase(void);
 static void usage(void);
 static void printrange(FILE *, struct range *);
@@ -243,13 +241,10 @@ readin(int fd, struct diff **dd)
 	return (i);
 }
 
-static int
+static void
 diffexec(const char *diffprog, char **diffargv, int fd[])
 {
-	int pd;
-
-	pd = fork();
-	switch (pd) {
+	switch (fork()) {
 	case 0:
 		close(fd[0]);
 		if (dup2(fd[1], STDOUT_FILENO) == -1)
@@ -263,7 +258,6 @@ diffexec(const char *diffprog, char **diffargv, int fd[])
 		break;
 	}
 	close(fd[1]);
-	return (pd);
 }
 
 static char *
@@ -826,19 +820,24 @@ increase(void)
 	szchanges = newsz;
 }
 
+static void
+handle_sig(int signo)
+{
+	write(sigpipe[1], &signo, sizeof(signo));
+}
 
 int
 main(int argc, char **argv)
 {
-	int ch, nblabels, m, n, kq, nke, nleft;
+	int ch, nblabels, status, m, n, npe, nleft;
 	char *labels[] = { NULL, NULL, NULL };
 	const char *diffprog = DIFF_PATH;
 	char *file1, *file2, *file3;
 	char *diffargv[7];
 	int diffargc = 0;
-	int fd13[2], fd23[2];
-	int pd13, pd23;
-	struct kevent e[2];
+	int fd13[2], fd23[2], signo;
+	struct pollfd pfd;
+	pid_t wpid;
 
 	nblabels = 0;
 	eflag = EFLAG_NONE;
@@ -914,10 +913,6 @@ main(int argc, char **argv)
 		exit(2);
 	}
 
-	kq = kqueue();
-	if (kq == -1)
-		err(2, "kqueue");
-
 	/* TODO stdio */
 	file1 = argv[0];
 	file2 = argv[1];
@@ -953,23 +948,28 @@ main(int argc, char **argv)
 		err(2, "pipe");
 	if (pipe(fd23))
 		err(2, "pipe");
+	if (fcntl(sigpipe[0], F_SETFD, FD_CLOEXEC))
+		err(2, "fcntl");
+	if (fcntl(sigpipe[1], F_SETFD, FD_CLOEXEC))
+		err(2, "fcntl");
+
+	pfd.fd = sigpipe[0];
+	pfd.events = POLLIN;
+	pfd.revents = 0;
+
+	if (signal(SIGCHLD, handle_sig) == SIG_ERR)
+		err(2, "signal");
 
 	diffargv[diffargc] = file1;
 	diffargv[diffargc + 1] = file3;
 	diffargv[diffargc + 2] = NULL;
 
 	nleft = 0;
-	pd13 = diffexec(diffprog, diffargv, fd13);
-	EV_SET(e + nleft , pd13, EVFILT_PROC, EV_ADD, NOTE_EXIT, 0, NULL);
-	if (kevent(kq, e + nleft, 1, NULL, 0, NULL) == -1)
-		err(2, "kevent1");
+	diffexec(diffprog, diffargv, fd13);
 	nleft++;
 
 	diffargv[diffargc] = file2;
-	pd23 = diffexec(diffprog, diffargv, fd23);
-	EV_SET(e + nleft , pd23, EVFILT_PROC, EV_ADD, NOTE_EXIT, 0, NULL);
-	if (kevent(kq, e + nleft, 1, NULL, 0, NULL) == -1)
-		err(2, "kevent2");
+	diffexec(diffprog, diffargv, fd23);
 	nleft++;
 
 	/* parse diffs */
@@ -977,12 +977,26 @@ main(int argc, char **argv)
 	m = readin(fd13[0], &d13);
 	n = readin(fd23[0], &d23);
 
-	/* waitpid cooked over pdforks */
+	/* waitpid */
 	while (nleft > 0) {
-		nke = kevent(kq, NULL, 0, e, nleft, NULL);
-		if (nke == -1)
-			err(2, "kevent");
-		nleft -= nke;
+		npe = poll(&pfd, 1, -1);
+		if (npe == -1) {
+			if (errno == EINTR)
+				continue;
+			err(2, "poll");
+		}
+
+		if (pfd.revents != POLLIN)
+			continue;
+		if (read(pfd.fd, &signo, sizeof(signo)) < 0)
+			err(2, "read");
+		while ((wpid = waitpid(-1, &status, WNOHANG)) > 0) {
+			if (WIFEXITED(status) && WEXITSTATUS(status) >= 2)
+				errx(2, "diff exited abnormally");
+			else if (WIFSIGNALED(status))
+				errx(2, "diff killed by signal %d", WTERMSIG(status));
+			--nleft;
+		}
 	}
 	merge(m, n);
 

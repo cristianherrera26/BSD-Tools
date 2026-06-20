@@ -32,20 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-
-#include <sys/cdefs.h>
-#if !defined(lint)
-__COPYRIGHT("@(#) Copyright (c) 1989, 1993, 1994\
- The Regents of the University of California.  All rights reserved.");
-#if 0
-static char sccsid[] = "@(#)tsort.c	8.3 (Berkeley) 5/4/95";
-#endif
-__RCSID("$NetBSD: tsort.c,v 1.26 2021/02/06 16:02:16 dbj Exp $");
-#endif /* not lint */
-
 #include <sys/types.h>
 #include <ctype.h>
 #include <db.h>
@@ -56,9 +42,7 @@ __RCSID("$NetBSD: tsort.c,v 1.26 2021/02/06 16:02:16 dbj Exp $");
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#if !HAVE_NBTOOL_CONFIG_H
-#include <util.h>
-#endif
+//#include <util.h>
 
 /*
  *  Topological sort.  Input is a list of pairs of strings separated by
@@ -110,7 +94,7 @@ static size_t	 find_cycle(NODE *, NODE *, size_t, size_t);
 static NODE	*get_node(const char *);
 static void	 remove_node(NODE *);
 static void	 tsort(void);
-__dead static void	 usage(void);
+__attribute__((noreturn)) static void	 usage(void);
 
 int
 main(int argc, char *argv[])
@@ -157,8 +141,11 @@ main(int argc, char *argv[])
 		usage();
 	}
 
-	for (b = bufs, n = 2; n-- > 0; b++)
-		b->b_buf = erealloc(NULL, b->b_bsize = 1024);
+	for (b = bufs, n = 2; n-- > 0; b++) {
+		b->b_buf = realloc(NULL, b->b_bsize = 1024);
+		if (!b->b_buf)
+			err(1, "realloc");
+	}
 
 	/* parse input and build the graph */
 	for (n = 0, c = getc(fp);;) {
@@ -172,8 +159,11 @@ main(int argc, char *argv[])
 		bsize = b->b_bsize;
 		do {
 			b->b_buf[nused++] = (char)c;
-			if (nused == bsize)
-				b->b_buf = erealloc(b->b_buf, bsize *= 2);
+			if (nused == bsize) {
+				b->b_buf = realloc(b->b_buf, bsize *= 2);
+				if (!b->b_buf)
+					err(1, "realloc");
+			}
 			c = getc(fp);
 		} while (c != EOF && !isspace(c));
 
@@ -227,7 +217,9 @@ add_arc(const char *s1, const char *s2)
 		if (!n1->n_arcsize)
 			n1->n_arcsize = 10;
 		bsize = n1->n_arcsize * sizeof(*n1->n_arcs) * 2;
-		n1->n_arcs = erealloc(n1->n_arcs, bsize);
+		n1->n_arcs = realloc(n1->n_arcs, bsize);
+		if (n1->n_arcs)
+			err(1, "realloc");
 		n1->n_arcsize = bsize / sizeof(*n1->n_arcs);
 	}
 	n1->n_arcs[n1->n_narcs++] = n2;
@@ -259,7 +251,9 @@ get_node(const char *name)
 		err(EXIT_FAILURE, "db: %s", name);
 	}
 
-	n = emalloc(sizeof(NODE) + key.size);
+	n = malloc(sizeof(NODE) + key.size);
+	if (!n)
+		err(1, "malloc");
 
 	n->n_narcs = 0;
 	n->n_arcsize = 0;
@@ -329,8 +323,12 @@ tsort(void)
 			 */
 			for (cnt = 0, n = graph; n != NULL; n = n->n_next)
 				++cnt;
-			cycle_buf = ecalloc(cnt, sizeof(*cycle_buf));
-			longest_cycle = ecalloc(cnt, sizeof(*longest_cycle));
+			cycle_buf = calloc(cnt, sizeof(*cycle_buf));
+			if (!cycle_buf)
+				err(1, "calloc");
+			longest_cycle = calloc(cnt, sizeof(*longest_cycle));
+			if (!longest_cycle)
+				err(1, "calloc");
 		}
 		for (n = graph; n != NULL; n = n->n_next) {
 			if (!(n->n_flags & NF_ACYCLIC)) {

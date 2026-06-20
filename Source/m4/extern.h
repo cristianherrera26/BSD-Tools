@@ -35,6 +35,8 @@
  *	@(#)extern.h	8.1 (Berkeley) 6/6/93
  */
 
+#include <stddef.h>
+
 /* eval.c */
 extern void	eval(const char *[], int, int, int);
 extern void	dodefine(const char *, const char *);
@@ -105,23 +107,22 @@ extern void	getdiv(int);
 extern ptrdiff_t doindex(const char *, const char *);
 extern void 	initspaces(void);
 extern void	killdiv(void);
-extern __dead void	onintr(int);
+extern void	onintr(int);
 extern void	pbnum(int);
 extern void	pbnumbase(int, int, int);
 extern void	pbunsigned(unsigned long);
 extern void	pbstr(const char *);
 extern void	pushback(int);
-extern void	*xalloc(size_t, const char *, ...) __printflike(2, 3);
-extern void	*xcalloc(size_t, size_t, const char *, ...) __printflike(3, 4);
-extern void	*xrealloc(void *, size_t, const char *, ...) __printflike(3, 4);
-extern void	*xreallocarray(void *, size_t, size_t, const char *, ...)
-    __printflike(4, 5);
+extern void	*xalloc(size_t, const char *, ...);
+extern void	*xcalloc(size_t, size_t, const char *, ...);
+extern void	*xrealloc(void *, size_t, const char *, ...);
+extern void	*xreallocarray(void *, size_t, size_t, const char *, ...);
 extern char	*xstrdup(const char *);
 extern void	usage(FILE *);
 extern void	resizedivs(int);
 extern size_t	buffer_mark(void);
 extern void	dump_buffer(FILE *, size_t);
-extern __dead void m4errx(int, const char *, ...) __printflike(2, 3);
+extern void m4errx(int, const char *, ...);
 
 extern int 	obtain_char(struct input_file *);
 extern void	set_input(struct input_file *, FILE *, const char *);
@@ -198,4 +199,4 @@ extern int fatal_warns;		/* make warnings fatal */
 extern int32_t end_result;
 
 
-extern void m4_warnx(const char *, ...) __printflike(1, 2);
+extern void m4_warnx(const char *, ...);

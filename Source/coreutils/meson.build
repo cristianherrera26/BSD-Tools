@@ -79,7 +79,6 @@ if libmd.found()
 	SUBDIRS += [ 'cksum', 'xinstall' ]
 endif
 
-
 foreach i : SUBDIRS
 	subdir(i)
 endforeach

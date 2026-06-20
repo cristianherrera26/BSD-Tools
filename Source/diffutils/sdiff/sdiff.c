@@ -56,7 +56,7 @@ static void printd(FILE *, size_t);
 static void println(const char *, const char, const char *);
 static void processq(void);
 static void prompt(const char *, const char *);
-__dead static void usage(void);
+static void usage(void);
 static char *xfgets(FILE *);
 
 SIMPLEQ_HEAD(, diffline) diffhead = SIMPLEQ_HEAD_INITIALIZER(diffhead);
@@ -151,6 +151,8 @@ FAIL:
 	exit(2);
 }
 
+char *tmp;
+
 int
 main(int argc, char **argv)
 {
@@ -232,8 +234,14 @@ main(int argc, char **argv)
 			diffargv[diffargc++] = "-w";
 			break;
 		case 'w':
-			wflag = strtonum(optarg, WIDTH_MIN,
-			    INT_MAX, &errstr);
+			errstr = NULL;
+			wflag = strtoll(optarg, &tmp, 10);
+			if (*optarg == '\0' || *tmp != '\0')
+				errstr = "invalid";
+			else if (wflag < WIDTH_MIN)
+				errstr = "to small";
+			else if (wflag > INT_MAX)
+				errstr = "to large";
 			if (errstr)
 				errx(2, "width is %s: %s", errstr, optarg);
 			break;
@@ -283,7 +291,7 @@ main(int argc, char **argv)
 	/* Subtract column divider and divide by two. */
 	width = (wflag - 3) / 2;
 	/* Make sure line_width can fit in size_t. */
-	if (width > (SIZE_T_MAX - 3) / 2)
+	if (width > (SIZE_MAX - 3) / 2)
 		errx(2, "width is too large: %zu", width);
 	line_width = width * 2 + 3;
 
@@ -383,7 +391,7 @@ printcol(const char *s, size_t *col, const size_t col_max)
 			 * If rounding to next multiple of eight causes
 			 * an integer overflow, just return.
 			 */
-			if (*col > SIZE_T_MAX - 8)
+			if (*col > SIZE_MAX - 8)
 				return;
 
 			/* Round to next multiple of eight. */
@@ -570,7 +578,7 @@ parsecmd(FILE *diffpipe, FILE *file1, FILE *file2)
 	size_t file1start, file1end, file2start, file2end, n;
 	/* ed command line and pointer to characters in line */
 	char *line, *p, *q;
-	const char *errstr;
+	const char *errstr = NULL;
 	char c, cmd;
 
 	/* Read ed command. */
@@ -583,7 +591,14 @@ parsecmd(FILE *diffpipe, FILE *file1, FILE *file2)
 		++p;
 	c = *p;
 	*p++ = 0;
-	file1start = strtonum(line, 0, INT_MAX, &errstr);
+	tmp = NULL;
+	file1start = strtoll(line, &tmp, 10);
+	if (*line == '\0' || *tmp != '\0')
+		errstr = "invalid";
+	else if (file1start < 0)
+		errstr = "too small";
+	else if (file1start > INT_MAX)
+		errstr = "too large";
 	if (errstr)
 		errx(2, "file1 start is %s: %s", errstr, line);
 
@@ -596,7 +611,14 @@ parsecmd(FILE *diffpipe, FILE *file1, FILE *file2)
 			++p;
 		c = *p;
 		*p++ = 0;
-		file1end = strtonum(q, 0, INT_MAX, &errstr);
+		tmp = NULL;
+		file1end = strtoll(q, &tmp, 10);
+		if (*line == '\0' || *tmp != '\0')
+			errstr = "invalid";
+		else if  (file1end < 0)
+			errstr = "too small";
+		else if (file1end > INT_MAX)
+			errstr = "too large";
 		if (errstr)
 			errx(2, "file1 end is %s: %s", errstr, line);
 		if (file1start > file1end)
@@ -616,7 +638,13 @@ parsecmd(FILE *diffpipe, FILE *file1, FILE *file2)
 		++p;
 	c = *p;
 	*p++ = 0;
-	file2start = strtonum(q, 0, INT_MAX, &errstr);
+	file2start = strtoll(q, &tmp, 10);
+	if (*line == '\0' || *tmp != '\0')
+		errstr = "invalid";
+	else if  (file2start < 0)
+		errstr = "too small";
+	else if (file2start > INT_MAX)
+		errstr = "too large";
 	if (errstr)
 		errx(2, "file2 start is %s: %s", errstr, line);
 
@@ -628,8 +656,13 @@ parsecmd(FILE *diffpipe, FILE *file1, FILE *file2)
 		errx(2, "invalid line range in file2: %c: %s", c, line);
 
 	if (c == ',') {
-
-		file2end = strtonum(p, 0, INT_MAX, &errstr);
+		file2end = strtoll(q, &tmp, 10);
+		if (*line == '\0' || *tmp != '\0')
+			errstr = "invalid";
+		else if  (file2end < 0)
+			errstr = "too small";
+		else if (file2end > INT_MAX)
+			errstr = "too large";
 		if (errstr)
 			errx(2, "file2 end is %s: %s", errstr, line);
 		if (file2start >= file2end)
@@ -642,7 +675,7 @@ parsecmd(FILE *diffpipe, FILE *file1, FILE *file2)
 		if (file1start != file1end)
 			errx(2, "append cannot have a file1 range: %s",
 			    line);
-		if (file1start == SIZE_T_MAX)
+		if (file1start == SIZE_MAX)
 			errx(2, "file1 line range too high: %s", line);
 		file1start = ++file1end;
 	}
@@ -654,7 +687,7 @@ parsecmd(FILE *diffpipe, FILE *file1, FILE *file2)
 		if (file2start != file2end)
 			errx(2, "delete cannot have a file2 range: %s",
 			    line);
-		if (file2start == SIZE_T_MAX)
+		if (file2start == SIZE_MAX)
 			errx(2, "file2 line range too high: %s", line);
 		file2start = ++file2end;
 	}
@@ -1029,10 +1062,8 @@ int_usage(void)
 static void
 usage(void)
 {
-	extern char *__progname;
-
 	fprintf(stderr,
 	    "usage: %s [-abdilstW] [-I regexp] [-o outfile] [-w width] file1 file2\n",
-	    __progname);
+	    getprogname());
 	exit(2);
 }

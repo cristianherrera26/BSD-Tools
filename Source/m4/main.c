@@ -38,11 +38,6 @@
  * Facility: m4 macro processor
  * by: oz
  */
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-#include <sys/cdefs.h>
-__RCSID("$NetBSD: main.c,v 1.52 2026/06/10 22:25:02 christos Exp $");
 #include <assert.h>
 #include <signal.h>
 #include <getopt.h>
@@ -794,6 +789,6 @@ help(void)
 	usage(stdout);
 
 	fprintf(stdout, "\nThe long options are:\n");
-	for (i = 0; i < __arraycount(nd); i++)
+	for (i = 0; i < (sizeof(nd) / sizeof(nd[0])); i++)
 		fprintf(stdout, "\t%-25.25s\t%s\n", nd[i].n, nd[i].d);
 }

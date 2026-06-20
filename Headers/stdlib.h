@@ -2,6 +2,7 @@
 #define _NB_STDLIB_H	1
 
 #include_next <stdlib.h>
+#include <stdint.h>
 
 extern const char *__progname;
 const char *getprogname(void);
@@ -11,7 +12,7 @@ char *getbsize(int *headerlenp, long *blocksizep);
 int humanize_number(char *buf, size_t len, int64_t bytes, const char *suffix, int scale, int flags);
 long long strsuftoll(const char *desc, const char *val, long long min, long long max);
 long long strsuftollx(const char *desc, const char *val, long long min, long long max, char *ebuf, size_t ebuflen);
-
+intmax_t strtoi(const char *__restrict nptr, char **__restrict endptr, int base, intmax_t lo, intmax_t hi, int *rstatus);
 
 #define HN_DECIMAL              0x01
 #define HN_NOSPACE              0x02

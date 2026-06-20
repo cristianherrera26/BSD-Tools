@@ -38,11 +38,6 @@
  * Facility: m4 macro processor
  * by: oz
  */
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-#include <sys/cdefs.h>
-__RCSID("$NetBSD: look.c,v 1.14 2026/06/10 22:25:02 christos Exp $");
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -54,7 +49,7 @@ __RCSID("$NetBSD: look.c,v 1.14 2026/06/10 22:25:02 christos Exp $");
 #include "extern.h"
 
 #undef UNUSED 
-#define UNUSED __unused
+#define UNUSED __attribute__((unused))
 
 static void *hash_calloc(size_t, size_t, void *);
 static void hash_free(void *, void *);

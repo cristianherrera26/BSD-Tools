@@ -38,12 +38,6 @@
  * Facility: m4 macro processor
  * by: oz
  */
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#endif
-#include <sys/cdefs.h>
-__RCSID("$NetBSD: eval.c,v 1.31 2026/06/10 22:25:02 christos Exp $");
-
 #include <sys/types.h>
 #include <ctype.h>
 #include <err.h>
