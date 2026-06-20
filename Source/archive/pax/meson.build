@@ -25,3 +25,15 @@ executable(
 	install : true,
 	install_dir : get_option('bindir')
 )
+
+install_symlink(
+	'tar',
+	pointing_to: 'pax',
+	install_dir: get_option('bindir')
+)
+
+install_symlink(
+	'cpio',
+	pointing_to: 'pax',
+	install_dir: get_option('bindir')
+)
