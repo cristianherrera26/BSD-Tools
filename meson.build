@@ -18,6 +18,16 @@ libbz2 = cc.find_library(
 	required : false
 )
 
+liblzma = cc.find_library(
+	'lzma',
+	required : false
+)
+
+libztsd = dependency(
+	'libzstd',
+	required : false
+)
+
 libm = cc.find_library(
 	'm',
 	required : false

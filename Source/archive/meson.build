@@ -1,4 +1,4 @@
-SUBDIRS = [ 'pax' ]
+SUBDIRS = [ 'gzip', 'pax' ]
 
 foreach i : SUBDIRS
 	subdir(i)
