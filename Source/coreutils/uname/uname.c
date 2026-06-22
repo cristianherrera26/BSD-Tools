@@ -42,7 +42,7 @@
 #include <unistd.h>
 #include <err.h>
 
-__attribute__((noreturn)) static void usage(void);
+static void usage(void);
 
 /* Note that PRINT_PROCESSOR is excluded from PRINT_ALL! */
 #define	PRINT_SYSNAME			(1 << 0)
@@ -51,41 +51,35 @@ __attribute__((noreturn)) static void usage(void);
 #define	PRINT_VERSION			(1 << 3)
 #define	PRINT_MACHINE			(1 << 4)
 #define	PRINT_PROCESSOR			(1 << 5)
+#define PRINT_HARDWARE_PLATFORM		(1 << 6)
+#define PRINT_OSNAME			(1 << 7)
 #define	PRINT_ALL		\
     (PRINT_SYSNAME|PRINT_NODENAME|PRINT_RELEASE|PRINT_VERSION|PRINT_MACHINE)
-
-static int arch;
 
 int
 main(int argc, char **argv)
 {
-	struct utsname u;
 	int c;
 	int space = 0;
-	char *opts;
 	int print_mask = 0;
-
+	struct utsname u;
 	setprogname(argv[0]);
-	arch = (!strcmp(getprogname(), "arch") || !strcmp(getprogname(), "machine")) ? 1 : 0;
-
-	if (arch) {
-		opts = "";
-		print_mask |= PRINT_MACHINE;
-	} else
-		opts = "amnprsv";
-
-	(void)setlocale(LC_ALL, "");
-
-	while ((c = getopt(argc,argv,opts)) != -1) {
+	while ((c = getopt(argc, argv, "aimnoprsv")) != -1) {
 		switch (c) {
 		case 'a':
 			print_mask |= PRINT_ALL;
+			break;
+		case 'i':
+			print_mask |= PRINT_HARDWARE_PLATFORM;
 			break;
 		case 'm':
 			print_mask |= PRINT_MACHINE;
 			break;
 		case 'n':
 			print_mask |= PRINT_NODENAME;
+			break;
+		case 'o':
+			print_mask |= PRINT_OSNAME;
 			break;
 		case 'p':
 			print_mask |= PRINT_PROCESSOR;
@@ -141,7 +135,15 @@ main(int argc, char **argv)
 	}
 	if (print_mask & PRINT_PROCESSOR) {
 		if (space++) putchar(' ');
-		fputs("unknown", stdout);
+		fputs(MACHINE_ARCH, stdout);
+	}
+	if (print_mask & PRINT_HARDWARE_PLATFORM) {
+		if (space++) putchar(' ');
+		fputs(HARDWARE_PLATFORM, stdout);
+	}
+	if (print_mask & PRINT_OSNAME) {
+		if (space++) putchar(' ');
+		fputs(OS_NAME, stdout);
 	}
 	putchar('\n');
 
@@ -152,9 +154,6 @@ main(int argc, char **argv)
 static void
 usage(void)
 {
-	if (arch)
-		fprintf(stderr, "usage: %s\n", getprogname());
-	else
-		fprintf(stderr, "usage: %s [-amnprsv]\n", getprogname());
+	fprintf(stderr, "usage: %s [-aimnoprsv]\n", getprogname());
 	exit(EXIT_FAILURE);
 }

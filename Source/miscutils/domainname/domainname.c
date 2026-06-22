@@ -36,30 +36,38 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "miscutils.h"
 
-__attribute__((noreturn)) static void usage(void);
+static void usage(void);
 
 int
 main(int argc, char *argv[])
 {
-	int ch;
+	int c;
 	char domainname[MAXHOSTNAMELEN];
-
 	setprogname(argv[0]);
-
-	while ((ch = getopt(argc, argv, "")) != -1) {
-		switch (ch) {
-		case '?':
-		default:
+	while ((c = getopt_long(argc, argv, "", def_longopts, NULL)) != -1) {
+		switch (c) {
+		case HOPT:
 			usage();
-			/* NOTREACHED */
+			break;
+		case VOPT:
+			show_version();
+			break;
+		default:
+			fprintf(stderr, "Try '%s --help' for more information.\n", getprogname());
+			return 1;
+			break;
 		}
 	}
 	argc -= optind;
 	argv += optind;
 
-	if (argc > 1)
-		usage();
+	if (argc > 1) {
+		fprintf(stderr, "%s: extra operand '%s'\n", getprogname(), argv[1]);
+		fprintf(stderr, "Try '%s --help' for more information.\n", getprogname());
+		return 1;
+	}
 
 	if (*argv) {
 		if (setdomainname(*argv, strlen(*argv)))
@@ -67,15 +75,20 @@ main(int argc, char *argv[])
 	} else {
 		if (getdomainname(domainname, sizeof(domainname)))
 			err(1, "getdomainname");
-		(void)printf("%s\n", domainname);
+		printf("%s\n", domainname);
 	}
-	exit(EXIT_SUCCESS);
-	/* NOTREACHED */
+
+	return 0;
 }
 
 static void
 usage(void)
 {
-	(void)fprintf(stderr, "usage: %s [name-of-domain]\n", getprogname());
-	exit(EXIT_FAILURE);
+	printf("Usage: %s [NAME]\n"
+		"Description: Set or print YP domain of current host system.\n"
+		"\nGeneral Options:\n"
+		"      --help           Print help information\n"
+		"      --version        Print version\n",
+		getprogname());
+	exit(0);
 }

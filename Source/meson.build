@@ -1,4 +1,4 @@
-SUBDIRS = [ 'archive', 'awk', 'coreutils', 'diffutils', 'findutils', 'ksh', 'm4', 'miscutils', 'patch', 'sed', 'util-linux' ]
+SUBDIRS = [ 'archive', 'awk', 'bsdutils', 'coreutils', 'diffutils', 'findutils', 'ksh', 'm4', 'miscutils', 'patch', 'sed' ]
 
 if libz.found() and libbz2.found()
 	SUBDIRS += 'grep'

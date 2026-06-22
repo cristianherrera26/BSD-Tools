@@ -1,4 +1,5 @@
 SUBDIRS = [
+	'arch',
 	'base64', 
 	'basename', 
 	'cat',
