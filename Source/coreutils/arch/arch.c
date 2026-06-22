@@ -3,10 +3,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <getopt.h>
 #include <err.h>
 #include "coreutils.h"
 
 static void usage(void);
+
+static const struct option longopts[] = {
+	{ "help", no_argument, 0, HOPT},
+	{ "version", no_argument, 0, VOPT},
+	{0, 0, 0, 0}
+};
 
 int
 main(int argc, char *argv[])
@@ -14,7 +21,7 @@ main(int argc, char *argv[])
 	int c;
 	struct utsname uts;
 	setprogname(argv[0]);
-	while ((c = getopt_long(argc, argv, "", def_longopts, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "", longopts, NULL)) != -1) {
 		switch (c) {
 		case HOPT:
 			usage();

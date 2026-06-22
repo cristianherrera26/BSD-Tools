@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <getopt.h>
 #include "info.h"
 
 #define PROJECT_NAME	"BSD coreutils"
@@ -22,11 +21,5 @@ show_version(void)
 
 #define HOPT	1000
 #define VOPT	1001
-
-static const struct option def_longopts[] = {
-	{ "help", no_argument, 0, HOPT},
-	{ "version", no_argument, 0, VOPT},
-	{0, 0, 0, 0}
-};
 
 #endif

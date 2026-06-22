@@ -37,21 +37,36 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <getopt.h>
 #include "utmpentry.h"
+#include "coreutils.h"
+
+static const struct option longopts[] = {
+	{ "help", no_argument, 0, HOPT},
+	{ "version", no_argument, 0, VOPT},
+	{0, 0, 0, 0}
+};
+
+static void usage(void);
 
 int
 main(int argc, char **argv)
 {
 	int ncnt = 0;
-	int ch;
+	int c;
 	struct utmpentry *from, *ehead, *save, **nextp;
-
-	while ((ch = getopt(argc, argv, "")) != -1)
-		switch(ch) {
+	setprogname(argv[0]);
+	while ((c = getopt_long(argc, argv, "", longopts, NULL)) != -1)
+		switch(c) {
+		case HOPT:
+			usage();
+			break;
+		case VOPT:
+			show_version();
+			break;
 		case '?':
 		default:
-			(void)fprintf(stderr, "usage: %s\n", getprogname());
+			fprintf(stderr, "Try '%s --help' for more information.\n", getprogname());
 			exit(1);
 		}
 	argc -= optind;
@@ -92,6 +107,18 @@ main(int argc, char **argv)
 			save = from;
 		}
 
-	(void)printf("\n");
+	putchar('\n');
+	return 0;
+}
+
+static void
+usage(void)
+{
+	printf("Usage: %s\n"
+		"Description: Print current users.\n"
+		"\nGeneral Options:\n"
+		"      --help           Print help information\n"
+		"      --version        Print version\n",
+		getprogname());
 	exit(0);
 }
