@@ -6,9 +6,3 @@ executable(
 	install : true,
 	install_dir : get_option('bindir')
 )
-
-install_symlink(
-	'machine',
-	pointing_to: 'uname',
-	install_dir: get_option('bindir')
-)

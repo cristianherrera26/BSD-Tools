@@ -6,3 +6,9 @@ executable(
 	install : true,
 	install_dir : get_option('bindir')
 )
+
+install_symlink(
+	'machine',
+	pointing_to: 'arch',
+	install_dir: get_option('bindir')
+)
