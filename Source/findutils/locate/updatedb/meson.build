@@ -3,3 +3,5 @@ install_data('locate.updatedb.sh',
 	install_dir : get_option('libexecdir'),
 	install_mode : 'rwxr-xr-x'
 )
+
+install_man('locate.updatedb.8')

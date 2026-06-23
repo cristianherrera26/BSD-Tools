@@ -3,3 +3,5 @@ install_data('c11.sh',
 	install_dir : get_option('bindir'),
 	install_mode : 'rwxr-xr-x'
 )
+
+install_man('c11.1')

@@ -7,3 +7,5 @@ executable(
 	install : true,
 	install_dir : get_option('bindir')
 )
+
+install_man('apply.1')

@@ -3,3 +3,5 @@ install_data('c89.sh',
 	install_dir : get_option('bindir'),
 	install_mode : 'rwxr-xr-x'
 )
+
+install_man('c89.1')
