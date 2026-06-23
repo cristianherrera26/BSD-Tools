@@ -6,3 +6,5 @@ executable(
 	install : true,
 	install_dir : get_option('sbindir')
 )
+
+install_man('nologin.8')
