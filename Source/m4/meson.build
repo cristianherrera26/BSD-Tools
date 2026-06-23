@@ -18,4 +18,4 @@ executable(
 	install_dir : get_option('bindir')
 )
 
-install_man('m4')
+install_man('m4.1')

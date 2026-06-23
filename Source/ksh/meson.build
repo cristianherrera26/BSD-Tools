@@ -36,9 +36,9 @@ executable(
 
 install_man('ksh.1')
 
-install_symlinks(
-	'sh.1'
-	pointing_to : 'ksh.1'
+install_symlink(
+	'sh.1',
+	pointing_to : 'ksh.1',
 	install_dir : get_option('mandir') / 'man1'
 )
 

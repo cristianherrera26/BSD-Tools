@@ -43,29 +43,29 @@ install_data('znew',
 install_symlink(
 	'gunzip',
 	pointing_to : 'gzip',
-	install_dir : get_options('bindir')
+	install_dir : get_option('bindir')
 )
 
 install_symlink(
 	'zcat',
 	pointing_to : 'gzip',
-	install_dir : get_options('bindir')
+	install_dir : get_option('bindir')
 )
 
 install_symlink(
 	'gzcat',
 	pointing_to : 'gzip',
-	install_dir : get_options('bindir')
+	install_dir : get_option('bindir')
 )
 
 install_symlink(
 	'zcmp',
 	pointing_to : 'zdiff',
-	install_dir : get_options('bindir')
+	install_dir : get_option('bindir')
 )
 
 install_symlink(
 	'zless',
 	pointing_to : 'zmore',
-	install_dir : get_options('bindir')
+	install_dir : get_option('bindir')
 )
