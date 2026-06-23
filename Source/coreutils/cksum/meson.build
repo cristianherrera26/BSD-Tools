@@ -19,3 +19,57 @@ executable(
 	install : true,
 	install_dir : get_option('bindir')
 )
+
+install_symlink(
+	'sum',
+	pointing_to : 'cksum',
+	install_dir : get_option('bindir')
+)
+
+install_symlink(
+	'md2',
+	pointing_to : 'cksum',
+	install_dir : get_option('bindir')
+)
+
+install_symlink(
+	'md4',
+	pointing_to : 'cksum',
+	install_dir : get_option('bindir')
+)
+
+install_symlink(
+	'md5',
+	pointing_to : 'cksum',
+	install_dir : get_option('bindir')
+)
+
+install_symlink(
+	'sha1',
+	pointing_to : 'cksum',
+	install_dir : get_option('bindir')
+)
+
+install_symlink(
+	'sha256',
+	pointing_to : 'cksum',
+	install_dir : get_option('bindir')
+)
+
+install_symlink(
+	'sha384',
+	pointing_to : 'cksum',
+	install_dir : get_option('bindir')
+)
+
+install_symlink(
+	'sha512',
+	pointing_to : 'cksum',
+	install_dir : get_option('bindir')
+)
+
+install_symlink(
+	'rmd160',
+	pointing_to : 'cksum',
+	install_dir : get_option('bindir')
+)
