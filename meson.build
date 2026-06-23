@@ -38,6 +38,11 @@ libmd = dependency(
 	required : false
 )
 
+libedit = dependency(
+	'libedit',
+	required : false
+)
+
 libcrypto = dependency(
 	'libcrypto',
 	required : false

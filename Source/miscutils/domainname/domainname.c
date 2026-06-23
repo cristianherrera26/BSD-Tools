@@ -36,7 +36,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "miscutils.h"
 
 static void usage(void);
 
@@ -46,28 +45,18 @@ main(int argc, char *argv[])
 	int c;
 	char domainname[MAXHOSTNAMELEN];
 	setprogname(argv[0]);
-	while ((c = getopt_long(argc, argv, "", def_longopts, NULL)) != -1) {
+	while ((c = getopt(argc, argv, "")) != -1) {
 		switch (c) {
-		case HOPT:
-			usage();
-			break;
-		case VOPT:
-			show_version();
-			break;
 		default:
-			fprintf(stderr, "Try '%s --help' for more information.\n", getprogname());
-			return 1;
+			usage();
 			break;
 		}
 	}
 	argc -= optind;
 	argv += optind;
 
-	if (argc > 1) {
-		fprintf(stderr, "%s: extra operand '%s'\n", getprogname(), argv[1]);
-		fprintf(stderr, "Try '%s --help' for more information.\n", getprogname());
-		return 1;
-	}
+	if (argc > 1)
+		usage();
 
 	if (*argv) {
 		if (setdomainname(*argv, strlen(*argv)))
@@ -84,11 +73,6 @@ main(int argc, char *argv[])
 static void
 usage(void)
 {
-	printf("Usage: %s [NAME]\n"
-		"Description: Set or print YP domain of current host system.\n"
-		"\nGeneral Options:\n"
-		"      --help           Print help information\n"
-		"      --version        Print version\n",
-		getprogname());
+	fprintf(stderr, "usage: %s [name-of-domain]\n", getprogname());
 	exit(0);
 }

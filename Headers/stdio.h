@@ -2,6 +2,7 @@
 #define _NB_STDIO_H	1
 
 #include_next <stdio.h>
+#include <stdlib.h>
 #include <wchar.h>
 
 char *fgetln(FILE *stream, size_t *len);

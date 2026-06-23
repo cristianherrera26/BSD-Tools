@@ -1,7 +1,7 @@
-/*	$NetBSD: users.c,v 1.17 2016/09/05 00:40:30 sevan Exp $	*/
+/*	$NetBSD: biff.c,v 1.11 2011/08/29 14:24:03 joerg Exp $	*/
 
 /*
- * Copyright (c) 1980, 1987, 1993
+ * Copyright (c) 1980, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,79 +30,63 @@
  */
 
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #include <err.h>
-#include <time.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <getopt.h>
-#include "utmpentry.h"
 
 static void usage(void);
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
-	int ncnt = 0;
-	int c;
-	struct utmpentry *from, *ehead, *save, **nextp;
-	setprogname(argv[0]);
-	while ((c = getopt(argc, argv, "")) != -1) {
-		switch(c) {
+	struct stat sb;
+	int ch;
+	const char *name;
+
+
+	while ((ch = getopt(argc, argv, "")) != -1)
+		switch(ch) {
 		case '?':
 		default:
 			usage();
-			break;
 		}
-	}
-
 	argc -= optind;
 	argv += optind;
 
-	ncnt = getutentries(NULL, &ehead);
+	if ((name = ttyname(STDERR_FILENO)) == NULL)
+		err(2, "tty");
 
-	if (ncnt == 0)
-		return 0;
+	if (stat(name, &sb))
+		err(2, "stat");
 
-	/*
-	 * XXX the utmp list belongs to getutentries and we shouldn't
-	 * sort it in place. Since we don't call endutentries and we
-	 * don't call getutentries again it doesn't matter, but it's
-	 * untidy. Maybe give getutentries a sort function? It has to
-	 * sort anyway if it's merging utmp and utmpx data.
-	 */
-
-	from = ehead;
-	ehead = NULL;
-	while (from != NULL) {
-		for (nextp = &ehead;
-		    (*nextp) && strcmp(from->name, (*nextp)->name) > 0;
-		    nextp = &(*nextp)->next)
-			continue;
-		save = from;
-		from = from->next;
-		save->next = *nextp;
-		*nextp = save;
+	if (*argv == NULL) {
+		(void)printf("is %s\n", sb.st_mode&0100 ? "y" : "n");
+		exit(sb.st_mode & 0100 ? 0 : 1);
 	}
 
-	save = ehead;
-	(void)printf("%s", ehead->name);
-
-	for (from = ehead->next; from; from = from->next)
-		if (strcmp(save->name, from->name) != 0) {
-			(void)printf(" %s", from->name);
-			save = from;
-		}
-
-	putchar('\n');
-	return 0;
+	switch(argv[0][0]) {
+	case 'n':
+		if (chmod(name, sb.st_mode & ~0100) < 0)
+			err(2, "%s", name);
+		break;
+	case 'y':
+		if (chmod(name, sb.st_mode | 0100) < 0)
+			err(2, "%s", name);
+		break;
+	default:
+		usage();
+	}
+	exit(sb.st_mode & 0100 ? 0 : 1);
 }
 
 static void
 usage(void)
 {
-	fprintf(stderr, "usage: %s\n", getprogname());
-	exit(1);
+	(void)fprintf(stderr, "usage: biff [y | n]\n");
+	exit(2);
 }

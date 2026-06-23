@@ -9,6 +9,12 @@ executable(
 
 install_symlink(
 	'[',
-	pointing_to: 'test',
+	pointing_to: 'xtest',
+	install_dir: get_option('bindir')
+)
+
+install_symlink(
+	'test',
+	pointing_to: 'xtest',
 	install_dir: get_option('bindir')
 )
