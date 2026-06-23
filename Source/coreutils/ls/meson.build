@@ -11,6 +11,8 @@ executable(
 	install_dir : get_option('bindir')
 )
 
+install_man('ls.1')
+
 install_symlink(
 	'dir',
 	pointing_to: 'ls',

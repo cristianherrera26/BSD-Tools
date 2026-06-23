@@ -10,6 +10,8 @@ executable(
 	install_dir : get_option('bindir')
 )
 
+install_man('install.1')
+
 install_symlink(
 	'install',
 	pointing_to: 'xinstall',

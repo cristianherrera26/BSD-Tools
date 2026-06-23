@@ -51,8 +51,6 @@ static void usage(void);
 #define	PRINT_VERSION			(1 << 3)
 #define	PRINT_MACHINE			(1 << 4)
 #define	PRINT_PROCESSOR			(1 << 5)
-#define PRINT_HARDWARE_PLATFORM		(1 << 6)
-#define PRINT_OSNAME			(1 << 7)
 #define	PRINT_ALL		\
     (PRINT_SYSNAME|PRINT_NODENAME|PRINT_RELEASE|PRINT_VERSION|PRINT_MACHINE)
 
@@ -64,22 +62,16 @@ main(int argc, char **argv)
 	int print_mask = 0;
 	struct utsname u;
 	setprogname(argv[0]);
-	while ((c = getopt(argc, argv, "aimnoprsv")) != -1) {
+	while ((c = getopt(argc, argv, "amnprsv")) != -1) {
 		switch (c) {
 		case 'a':
 			print_mask |= PRINT_ALL;
-			break;
-		case 'i':
-			print_mask |= PRINT_HARDWARE_PLATFORM;
 			break;
 		case 'm':
 			print_mask |= PRINT_MACHINE;
 			break;
 		case 'n':
 			print_mask |= PRINT_NODENAME;
-			break;
-		case 'o':
-			print_mask |= PRINT_OSNAME;
 			break;
 		case 'p':
 			print_mask |= PRINT_PROCESSOR;
@@ -137,14 +129,7 @@ main(int argc, char **argv)
 		if (space++) putchar(' ');
 		fputs(MACHINE_ARCH, stdout);
 	}
-	if (print_mask & PRINT_HARDWARE_PLATFORM) {
-		if (space++) putchar(' ');
-		fputs(HARDWARE_PLATFORM, stdout);
-	}
-	if (print_mask & PRINT_OSNAME) {
-		if (space++) putchar(' ');
-		fputs(OS_NAME, stdout);
-	}
+
 	putchar('\n');
 
 	exit(EXIT_SUCCESS);
@@ -154,6 +139,6 @@ main(int argc, char **argv)
 static void
 usage(void)
 {
-	fprintf(stderr, "usage: %s [-aimnoprsv]\n", getprogname());
+	fprintf(stderr, "usage: %s [-amnprsv]\n", getprogname());
 	exit(EXIT_FAILURE);
 }

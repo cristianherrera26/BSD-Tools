@@ -11,6 +11,9 @@ executable(
 	install_dir : get_option('bindir')
 )
 
+install_man('tail.1')
+install_man('tac.1')
+
 install_symlink(
 	'tac',
 	pointing_to: 'tail',
