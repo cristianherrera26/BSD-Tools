@@ -20,6 +20,8 @@ executable(
 	install_dir : get_option('bindir')
 )
 
+install_man('cksum.1')
+
 install_symlink(
 	'sum',
 	pointing_to : 'cksum',
@@ -68,8 +70,62 @@ install_symlink(
 	install_dir : get_option('bindir')
 )
 
-install_symlink(
-	'rmd160',
+install_symlink( 
+	'rmd160', 
 	pointing_to : 'cksum',
 	install_dir : get_option('bindir')
+)
+
+install_symlink(
+	'sum.1',
+	pointing_to : 'cksum.1',
+	install_dir : get_option('mandir') / 'man1'
+)
+
+install_symlink(
+	'md2.1',
+	pointing_to : 'cksum.1',
+	install_dir : get_option('mandir') / 'man1'
+)
+
+install_symlink(
+	'md4.1',
+	pointing_to : 'cksum.1',
+	install_dir : get_option('mandir') / 'man1'
+)
+
+install_symlink(
+	'md5.1',
+	pointing_to : 'cksum.1',
+	install_dir : get_option('mandir') / 'man1'
+)
+
+install_symlink(
+	'sha1.1',
+	pointing_to : 'cksum.1',
+	install_dir : get_option('mandir') / 'man1'
+)
+
+install_symlink(
+	'sha256.1',
+	pointing_to : 'cksum.1',
+	install_dir : get_option('mandir') / 'man1'
+)
+
+install_symlink(
+	'sha384.1',
+	pointing_to : 'cksum.1',
+	install_dir : get_option('mandir') / 'man1'
+)
+
+install_symlink(
+	'sha512.1',
+	pointing_to : 'cksum.1',
+	install_dir : get_option('mandir') / 'man1'
+)
+
+install_symlink(
+	'rmd160.1',
+	pointing_to : 'cksum.1',
+	install_dir : get_option('mandir') / 'man1'
 )
