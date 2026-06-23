@@ -10,6 +10,7 @@ SUBDIRS = [ 	'apply',
 		'domainname', 
 		'jot', 
 		'primes', 
+		'progress',
 		'time', 
 		'unvis', 
 		'vis' ]
