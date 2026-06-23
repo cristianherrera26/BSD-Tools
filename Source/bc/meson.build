@@ -31,4 +31,9 @@ executable(
 	install_dir : get_option('bindir')
 )
 
+install_data(
+	'bc.library',
+	install_dir: get_option('prefix') / 'share' / 'misc'
+)
+
 endif

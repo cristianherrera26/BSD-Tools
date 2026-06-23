@@ -1,7 +1,9 @@
+PREFIX ?= /usr
+
 all: build
 
 build:
-	meson setup --prefix=/usr build
+	meson setup --prefix=$(PREFIX) build
 	ninja -C build
 rebuild:
 	ninja -C build

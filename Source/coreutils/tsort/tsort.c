@@ -42,7 +42,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-//#include <util.h>
+#include <util.h>
 
 /*
  *  Topological sort.  Input is a list of pairs of strings separated by
@@ -65,6 +65,8 @@
 #define	NF_MARK		0x1		/* marker for cycle detection */
 #define	NF_ACYCLIC	0x2		/* this node is cycle free */
 #define	NF_NODEST	0x4		/* Unreachable */
+#define HASH_CHUNK_SIZE 64
+#define HASH_BUCKET_COUNT 1024
 
 typedef struct node_str NODE;
 
@@ -84,17 +86,35 @@ typedef struct _buf {
 	size_t b_bsize;
 } BUF;
 
-static DB *db;
+struct hash_elem {
+	NODE *elem;
+	struct hash_elem *next;
+};
+
+struct hash_chunk {
+	struct hash_elem elems[HASH_CHUNK_SIZE];
+	struct hash_chunk *next;
+};
+
+struct hash {
+	struct hash_elem **elems;
+	struct hash_chunk *chunks;
+	struct hash_elem *top;
+};
+
+static struct hash db;
 static NODE *graph, **cycle_buf, **longest_cycle;
 static int debug, longest, quiet, reverse;
 
-static void	 add_arc(const char *, const char *);
+static void	 add_arc(char *, char *);
 static void	 clear_cycle(void);
 static size_t	 find_cycle(NODE *, NODE *, size_t, size_t);
-static NODE	*get_node(const char *);
+static NODE	*get_node(char *);
 static void	 remove_node(NODE *);
 static void	 tsort(void);
-__attribute__((noreturn)) static void	 usage(void);
+static void hash_init(struct hash *h);
+static void hash_destroy(struct hash *h);
+static void	 usage(void);
 
 int
 main(int argc, char *argv[])
@@ -147,6 +167,8 @@ main(int argc, char *argv[])
 			err(1, "realloc");
 	}
 
+	hash_init(&db);
+
 	/* parse input and build the graph */
 	for (n = 0, c = getc(fp);;) {
 		while (c != EOF && isspace(c))
@@ -183,6 +205,10 @@ main(int argc, char *argv[])
 
 	/* do the sort */
 	tsort();
+	hash_destroy(&db);;
+	if (ferror(stdout) || fflush(stdout) != 0)
+		err(1, "stdout");
+
 	return EXIT_SUCCESS;
 }
 
@@ -190,8 +216,66 @@ main(int argc, char *argv[])
  * add an arc from node s1 to node s2 in the graph.  If s1 or s2 are not in
  * the graph, then add them.
  */
+
+static void hash_init(struct hash *h) {
+	h->chunks = NULL;
+	h->top = NULL;
+	h->elems = calloc(1024, sizeof(struct hash_elem *));
+}
+
+static void hash_destroy(struct hash *h) {
+	for (size_t i = 0; i < HASH_BUCKET_COUNT; ++i) {
+		struct hash_elem *e = h->elems[i];
+		while (e) {
+			free(e->elem->n_arcs);
+			free(e->elem);
+			e = e->next;
+		}
+	}
+	free(h->elems);
+	while (h->chunks) {
+		struct hash_chunk *c = h->chunks;
+		h->chunks = h->chunks->next;
+		free(c);
+	}
+}
+
+static size_t hash_key(char *key) {
+	size_t h = 5381;
+	for (size_t i = 0, k; (k = key[i]); ++i)
+		h = ((h << 5) + h) ^ k;
+	return h;
+}
+
+static NODE *hash_find(struct hash *h, char *key) {
+	size_t hash = hash_key(key) & (HASH_BUCKET_COUNT - 1);
+	for (struct hash_elem *c = h->elems[hash]; c; c = c->next) {
+		if (!strcmp(key, c->elem->n_name))
+			return c->elem;
+	}
+	return NULL;
+}
+
+static struct hash_elem *hash_insert(struct hash *h, char *key) {
+	size_t hash = hash_key(key) & (HASH_BUCKET_COUNT - 1);
+	if (!h->top) {
+		struct hash_chunk *c = calloc(1, sizeof(struct hash_chunk));
+		c->next = h->chunks;
+		h->chunks = c;
+		for (size_t i = 0; i < (HASH_CHUNK_SIZE - 1); ++i) 
+			c->elems[i].next = &c->elems[i + 1];
+		c->elems[HASH_CHUNK_SIZE - 1].next = h->top;
+		h->top = c->elems;
+	}
+	struct hash_elem *hc = h->top;
+	h->top = h->top->next;
+	hc->next = h->elems[hash];
+	h->elems[hash] = hc;
+	return hc;
+}
+
 static void
-add_arc(const char *s1, const char *s2)
+add_arc(char *s1, char *s2)
 {
 	NODE *n1;
 	NODE *n2;
@@ -218,7 +302,7 @@ add_arc(const char *s1, const char *s2)
 			n1->n_arcsize = 10;
 		bsize = n1->n_arcsize * sizeof(*n1->n_arcs) * 2;
 		n1->n_arcs = realloc(n1->n_arcs, bsize);
-		if (n1->n_arcs)
+		if (!n1->n_arcs)
 			err(1, "realloc");
 		n1->n_arcsize = bsize / sizeof(*n1->n_arcs);
 	}
@@ -228,30 +312,15 @@ add_arc(const char *s1, const char *s2)
 
 /* Find a node in the graph (insert if not found) and return a pointer to it. */
 static NODE *
-get_node(const char *name)
+get_node(char *name)
 {
-	DBT data, key;
-	NODE *n;
-
-	if (db == NULL &&
-	    (db = dbopen(NULL, O_RDWR, 0, DB_HASH, NULL)) == NULL)
-		err(EXIT_FAILURE, "db: %s", name);
-
-	key.data = __UNCONST(name);
-	key.size = strlen(name) + 1;
-
-	switch ((*db->get)(db, &key, &data, 0)) {
-	case 0:
-		(void)memmove(&n, data.data, sizeof(n));
+	NODE *n = hash_find(&db, name);
+	if (n)
 		return n;
-	case 1:
-		break;
-	default:
-	case -1:
-		err(EXIT_FAILURE, "db: %s", name);
-	}
 
-	n = malloc(sizeof(NODE) + key.size);
+	size_t nlen = strlen(name) + 1;
+
+	n = malloc(sizeof(NODE) + nlen);
 	if (!n)
 		err(1, "malloc");
 
@@ -260,7 +329,7 @@ get_node(const char *name)
 	n->n_arcs = NULL;
 	n->n_refcnt = 0;
 	n->n_flags = 0;
-	(void)memmove(n->n_name, name, key.size);
+	(void)memmove(n->n_name, name, nlen);
 
 	/* Add to linked list. */
 	if ((n->n_next = graph) != NULL)
@@ -269,10 +338,7 @@ get_node(const char *name)
 	graph = n;
 
 	/* Add to hash table. */
-	data.data = &n;
-	data.size = sizeof(n);
-	if ((*db->put)(db, &key, &data, 0))
-		err(EXIT_FAILURE, "db: %s", name);
+	hash_insert(&db, name)->elem = n;
 	return n;
 }
 
