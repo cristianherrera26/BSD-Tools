@@ -62,6 +62,7 @@ SUBDIRS = [
 	'touch',
 	'tr',
 	'true',
+	'truncate',
 	'tsort',
 	'tty',
 	'uname',

@@ -19,5 +19,6 @@ char 	       *strspct_r(char *,size_t, intmax_t, intmax_t, size_t, uint32_t);
 uint32_t	strpct_round(uint32_t);
 
 char *flags_to_string(unsigned long flags, const char *def);
+int	expand_number(const char*, uint64_t*);
 
 #endif

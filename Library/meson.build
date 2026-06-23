@@ -1,4 +1,5 @@
 libcompat = static_library('compat',
+	'expand_number.c',
 	'fchroot.c',
 	'fgetln.c', 
 	'fgetwln.c', 
