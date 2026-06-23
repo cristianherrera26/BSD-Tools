@@ -64,9 +64,6 @@
 /* Subroutines to generate sort keys. */
 
 #include "sort.h"
-
-__RCSID("$NetBSD: fields.c,v 1.33 2013/01/20 10:12:58 apb Exp $");
-
 #define SKIP_BLANKS(ptr) {					\
 	if (BLANK & d_mask[*(ptr)])				\
 		while (BLANK & d_mask[*(++(ptr))]);		\

@@ -60,12 +60,6 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1993\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-__RCSID("$NetBSD: sort.c,v 1.65 2026/01/19 20:21:16 jkoshy Exp $");
 
 /* Sort sorts a file using an optional user-defined key.
  * Sort uses radix sort for internal sorting, and allows
@@ -111,7 +105,7 @@ const char *tmpdir;	/* where temporary files should be put */
 
 static void cleanup(void);
 static void onsignal(int);
-__dead static void usage(const char *);
+static void usage(const char *);
 
 int
 main(int argc, char *argv[])
@@ -142,7 +136,9 @@ main(int argc, char *argv[])
 	/* fldtab[0] is the global options. */
 	fldtab_sz = 3;
 	fld_cnt = 0;
-	fldtab = emalloc(fldtab_sz * sizeof(*fldtab));
+	fldtab = malloc(fldtab_sz * sizeof(*fldtab));
+	if (!fldtab)
+		err(1, "malloc");
 	memset(fldtab, 0, fldtab_sz * sizeof(*fldtab));
 
 #define SORT_OPTS "bcCdD:fHik:lmno:rR:sSt:T:u"
@@ -175,7 +171,9 @@ main(int argc, char *argv[])
 			/* That is now the default. */
 			break;
 		case 'k':
-			fldtab = erealloc(fldtab, (fldtab_sz + 1) * sizeof(*fldtab));
+			fldtab = realloc(fldtab, (fldtab_sz + 1) * sizeof(*fldtab));
+			if (!fldtab)
+				err(1, "realloc");
 			memset(&fldtab[fldtab_sz], 0, sizeof(fldtab[0]));
 			fldtab_sz++;
 
@@ -199,7 +197,7 @@ main(int argc, char *argv[])
 					optarg++, t = 8;
 				REC_D = (int)strtol(optarg, &ep, t);
 				if (*ep != '\0' || REC_D < 0 ||
-				    REC_D >= (int)__arraycount(d_mask))
+				    REC_D >= (int)(sizeof(d_mask) / sizeof(d_mask[0])))
 					errx(2, "invalid record delimiter %s",
 					    optarg);
 			}
@@ -420,5 +418,8 @@ RECHEADER *
 allocrec(RECHEADER *rec, size_t size)
 {
 
-	return (erealloc(rec, size + sizeof(long) - 1));
+	RECHEADER *ret = realloc(rec, size + sizeof(long) - 1);
+	if (ret)
+		err(1, "realloc");
+	return ret;
 }

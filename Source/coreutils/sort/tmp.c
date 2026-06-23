@@ -1,4 +1,4 @@
-/*	$NetBSD: append.c,v 1.23 2009/11/06 18:34:22 joerg Exp $	*/
+/*	$NetBSD: tmp.c,v 1.16 2009/11/06 18:34:22 joerg Exp $	*/
 
 /*-
  * Copyright (c) 2000-2003 The NetBSD Foundation, Inc.
@@ -61,34 +61,42 @@
  * SUCH DAMAGE.
  */
 
-#include "sort.h"
+#include <sys/param.h>
 
-__RCSID("$NetBSD: append.c,v 1.23 2009/11/06 18:34:22 joerg Exp $");
-
+#include <err.h>
+#include <errno.h>
+#include <limits.h>
+#include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-/*
- * copy sorted lines to output
- * Ignore duplicates (marked with -ve keylen)
- */
-void
-append(RECHEADER **keylist, int nelem, FILE *fp, put_func_t put)
+#include "sort.h"
+#include "pathnames.h"
+
+#define _NAME_TMP "sort.XXXXXXXX"
+
+FILE *
+ftmp(void)
 {
-	RECHEADER **cpos, **lastkey;
-	RECHEADER *crec;
+	sigset_t set, oset;
+	FILE *fp;
+	int fd;
+	char path[MAXPATHLEN];
 
-	lastkey = keylist + nelem;
-	if (REVERSE) {
-		for (cpos = lastkey; cpos-- > keylist;) {
-			crec = *cpos;
-			if (crec->keylen >= 0)
-				put(crec, fp);
-		}
-	} else {
-		for (cpos = keylist; cpos < lastkey; cpos++) {
-			crec = *cpos;
-			if (crec->keylen >= 0)
-				put(crec, fp);
-		}
-	}
+	(void)snprintf(path, sizeof(path), "%s%s%s", tmpdir,
+		       (tmpdir[strlen(tmpdir)-1] != '/') ? "/" : "", _NAME_TMP);
+
+	sigfillset(&set);
+	(void)sigprocmask(SIG_BLOCK, &set, &oset);
+	if ((fd = mkstemp(path)) < 0)
+		err(2, "ftmp: mkstemp(\"%s\")", path);
+	if (!(fp = fdopen(fd, "w+")))
+		err(2, "ftmp: fdopen(\"%s\")", path);
+	if (!DEBUG('t'))
+		(void)unlink(path);
+
+	(void)sigprocmask(SIG_SETMASK, &oset, NULL);
+	return (fp);
 }

@@ -71,8 +71,6 @@
 #include "sort.h"
 #include "fsort.h"
 
-__RCSID("$NetBSD: fsort.c,v 1.47 2010/02/05 21:58:41 enami Exp $");
-
 #include <stdlib.h>
 #include <string.h>
 

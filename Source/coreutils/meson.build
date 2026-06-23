@@ -50,6 +50,7 @@ SUBDIRS = [
 	'rmdir',
 	'seq',
 	'sleep',
+	'sort',
 	'split',
 	'stat',
 	'stty',

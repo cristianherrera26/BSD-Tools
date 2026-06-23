@@ -63,8 +63,6 @@
 
 #include "sort.h"
 
-__RCSID("$NetBSD: init.c,v 1.30 2021/09/19 11:37:01 andvar Exp $");
-
 #include <ctype.h>
 #include <string.h>
 
