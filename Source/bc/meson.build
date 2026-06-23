@@ -13,6 +13,8 @@ executable(
 	install_dir : get_option('bindir')
 )
 
+install_man('dc.1')
+
 if libedit.found()
 executable(
 	'bc',
@@ -30,6 +32,8 @@ executable(
 	install : true,
 	install_dir : get_option('bindir')
 )
+
+install_man('bc.1')
 
 install_data(
 	'bc.library',

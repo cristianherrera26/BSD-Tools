@@ -26,6 +26,10 @@ executable(
 	install_dir : get_option('bindir')
 )
 
+install_man('pax.1')
+install_man('tar.1')
+install_man('cpio.1')
+
 install_symlink(
 	'tar',
 	pointing_to: 'pax',

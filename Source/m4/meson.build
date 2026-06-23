@@ -17,3 +17,5 @@ executable(
 	install : true,
 	install_dir : get_option('bindir')
 )
+
+install_man('m4')
