@@ -49,18 +49,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <util.h>
 
-static char	*getmntpt(const char *);
-static void	 addstat(struct statvfs *, const struct statvfs *);
-static void	 prtstat(const struct statvfs *, int);
-static int	 selected(const char *, size_t);
+static char	*getmntpt(struct mntinfo **, const size_t, const char *);
+static void	 addstat(struct mntinfo *, struct mntinfo *);
+static void	 prtstat(struct mntinfo *, int);
 static void	 maketypelist(char *);
-static size_t	 regetmntinfo(struct statvfs **, size_t);
 static void	 usage(void);
 static void	 prthumanval(bool, int64_t, int);
-static void	 prthuman(const struct statvfs *, int64_t, int64_t);
+static void	 prthuman(struct mntinfo *, int64_t, int64_t);
 
 static int	 aflag, cflag, fflag, gflag, hflag, iflag, lflag;
 static int	 Mflag, Nflag, nflag, Pflag, qflag, Wflag;
@@ -81,7 +80,7 @@ int
 main(int argc, char *argv[])
 {
 	struct stat stbuf;
-	struct statvfs *mntbuf, totals;
+	struct mntinfo *mntbuf, totals;
 	int ch, maxwidth, width;
 	size_t i;
 	char *mntpt;
@@ -175,71 +174,49 @@ main(int argc, char *argv[])
 	if (fflag)
 		Nflag = 1;
 
-#if 0
-	/*
-	 * The block size cannot be checked until after getbsize() is called.
-	 */
-	if (Pflag && (hflag || (usize != 1024 && usize != 512)))
-		errx(EXIT_FAILURE,
-		    "non-standard block size incompatible with -P");
-#endif
 	argc -= optind;
 	argv += optind;
 
-	mntcount = getmntinfo(&mntbuf, MNT_NOWAIT);
+	mntcount = getmntinfo(&mntbuf, true);
 	if (mntcount == 0)
-		err(EXIT_FAILURE,
-		    "retrieving information on mounted file systems");
+		err(EXIT_FAILURE, "retrieving information on mounted file systems");
+
+
+	if (*argv) {
+		for (int i = 0; i < mntcount; i++)
+			mntbuf[i].f_selected = 0;
+	}
 
 	if (*argv == NULL) {
-		mntcount = regetmntinfo(&mntbuf, mntcount);
+		mntcount = getmntinfo(&mntbuf, true);
 	} else {
-		if ((mntbuf = calloc(argc, sizeof(*mntbuf))) == NULL)
-			err(EXIT_FAILURE, "can't allocate statvfs array");
-		mntcount = 0;
 		for (/*EMPTY*/; *argv != NULL; argv++) {
 			if (stat(*argv, &stbuf) < 0) {
-				if ((mntpt = getmntpt(*argv)) == 0) {
+				if ((mntpt = getmntpt(&mntbuf, mntcount, *argv)) == NULL) {
 					if (!qflag)
 						warn("%s", *argv);
 					continue;
 				}
-			} else if (S_ISBLK(stbuf.st_mode)) {
-				if ((mntpt = getmntpt(*argv)) == 0)
-					mntpt = *argv;
+			} else if (S_ISCHR(stbuf.st_mode)) {
+				mntpt = getmntpt(&mntbuf, mntcount, *argv);
+				if (!mntpt && !qflag)
+					warn("%s: not mounted", *argv);
+				continue;
 			} else
 				mntpt = *argv;
 
-			/*
-			 * Statfs does not take a `wait' flag, so we cannot
-			 * implement nflag here.
-			 */
-			if (!statvfs(mntpt, &mntbuf[mntcount])) {
-				if (Mflag &&
-				    !streq(mntpt, mntbuf[mntcount].f_mntonname))
-					warnq(("%s is not a mount point",
-					    mntpt));
-				else if (lflag &&
-				    (mntbuf[mntcount].f_flag & MNT_LOCAL) == 0)
-					warnq(("Warning: %s is not a local %s",
-					    *argv, "file system"));
-				else if
-				    (!selected(mntbuf[mntcount].f_fstypename,
-					sizeof(mntbuf[mntcount].f_fstypename)))
-					warnq(("Warning: %s mounted as a %s %s",
-					    *argv,
-					    mntbuf[mntcount].f_fstypename,
-					    "file system"));
-				else
-					++mntcount;
-			} else if (!qflag)
-				warn("%s", *argv);
+			for (int i = 0; i < mntcount; i++) {
+				if (((stbuf.st_dev == mntbuf[i].f_dev) || !strcmp(mntbuf[i].f_mntfromname, mntpt) || !strcmp(mntbuf[i].f_mntonname, mntpt))) {
+					mntbuf[i].f_selected = 1;
+					break;
+				}
+			}
 		}
 	}
 
 	if (cflag) {
 		memset(&totals, 0, sizeof(totals));
-		totals.f_frsize = DEV_BSIZE;
+		totals.f_bsize = DEV_BSIZE;
 		strlcpy(totals.f_mntfromname, "total",
 			sizeof(totals.f_mntfromname));
 	}
@@ -247,10 +224,6 @@ main(int argc, char *argv[])
 	maxwidth = 0;
 	for (i = 0; i < mntcount; i++) {
 		width = 0;
-		if (Wflag && mntbuf[i].f_mntfromlabel[0]) {
-			/* +5 is for "NAME=" added later */
-			width = (int)strlen(mntbuf[i].f_mntfromlabel) + 5;
-		}
 		if (width == 0)
 			width = (int)strlen(mntbuf[i].f_mntfromname);
 		if (width > maxwidth)
@@ -259,11 +232,15 @@ main(int argc, char *argv[])
 			addstat(&totals, &mntbuf[i]);
 	}
 
-	if (cflag == 0 || fflag == 0)
-		for (i = 0; i < mntcount; i++)
-			prtstat(&mntbuf[i], maxwidth);
+	for (int i = 0; i < mntcount; i++) {
+		if (!mntbuf[i].f_selected)
+			continue;
+		if (!aflag && mntbuf[i].f_blocks <= 0)
+			continue;
 
-	mntcount = fflag;
+		prtstat(&mntbuf[i], maxwidth);
+	}
+
 	if (cflag)
 		prtstat(&totals, maxwidth);
 
@@ -271,36 +248,22 @@ main(int argc, char *argv[])
 }
 
 static char *
-getmntpt(const char *name)
+getmntpt(struct mntinfo **mntbuf, const size_t mntsize, const char *name)
 {
-	size_t count, i;
-	struct statvfs *mntbuf;
+	size_t i;
 
-	count = getmntinfo(&mntbuf, MNT_NOWAIT);
-	if (count == 0)
-		err(EXIT_FAILURE, "Can't get mount information");
-	for (i = 0; i < count; i++) {
-		if (streq(mntbuf[i].f_mntfromname, name))
-			return mntbuf[i].f_mntonname;
+	if (mntsize == 0 || mntbuf == NULL || name == NULL)
+		return NULL;
+
+	for (i = 0; i < mntsize; i++) {
+		if (mntbuf[i] == NULL)
+			continue;;
 	}
-	return 0;
+
+	return (NULL);
 }
 
 static enum { IN_LIST, NOT_IN_LIST } which;
-
-static int
-selected(const char *type, size_t len)
-{
-	char **av;
-
-	/* If no type specified, it's always selected. */
-	if (typelist == NULL)
-		return 1;
-	for (av = typelist; *av != NULL; ++av)
-		if (!strncmp(type, *av, len))
-			return which == IN_LIST ? 1 : 0;
-	return which == IN_LIST ? 0 : 1;
-}
 
 static void
 maketypelist(char *fslist)
@@ -340,48 +303,6 @@ maketypelist(char *fslist)
 	av[i] = NULL;
 }
 
-/*
- * Make a pass over the filesystem info in ``mntbuf'' filtering out
- * filesystem types not in ``fsmask'' and possibly re-stating to get
- * current (not cached) info.  Returns the new count of valid statvfs bufs.
- */
-static size_t
-regetmntinfo(struct statvfs **mntbufp, size_t count)
-{
-	size_t i, j;
-	struct statvfs *mntbuf;
-
-	if (!lflag && typelist == NULL && aflag)
-		return nflag ? count : (size_t)getmntinfo(mntbufp, MNT_WAIT);
-
-	mntbuf = *mntbufp;
-	j = 0;
-	for (i = 0; i < count; i++) {
-		if (!aflag && (mntbuf[i].f_flag & MNT_IGNORE) != 0)
-			continue;
-		if (lflag && (mntbuf[i].f_flag & MNT_LOCAL) == 0)
-			continue;
-		if (!selected(mntbuf[i].f_fstypename,
-		    sizeof(mntbuf[i].f_fstypename)))
-			continue;
-		if (nflag)
-			mntbuf[j] = mntbuf[i];
-		else {
-			struct statvfs layerbuf = mntbuf[i];
-			(void)statvfs(mntbuf[i].f_mntonname, &mntbuf[j]);
-			/*
-			 * If the FS name changed, then new data is for
-			 * a different layer and we don't want it.
-			 */
-			if (memcmp(layerbuf.f_mntfromname,
-			    mntbuf[j].f_mntfromname, MNAMELEN))
-				mntbuf[j] = layerbuf;
-		}
-		j++;
-	}
-	return j;
-}
-
 static void
 prthumanval(bool bytes, int64_t value, int width)
 {
@@ -396,17 +317,17 @@ prthumanval(bool bytes, int64_t value, int width)
 }
 
 static void
-prthuman(const struct statvfs *sfsp, int64_t used, int64_t bavail)
+prthuman(struct mntinfo *sfsp, int64_t used, int64_t bavail)
 {
 
 	prthumanval(true,
-	    (int64_t)(sfsp->f_blocks * sfsp->f_frsize),
+	    (int64_t)(sfsp->f_blocks * sfsp->f_bsize),
 	    blksize_width);
 	prthumanval(true,
-	    (int64_t)(used * sfsp->f_frsize),
+	    (int64_t)(used * sfsp->f_bsize),
 	    1 + blksize_width);
 	prthumanval(true,
-	    (int64_t)(bavail * sfsp->f_frsize),
+	    (int64_t)(bavail * sfsp->f_bsize),
 	    1 + blksize_width);
 }
 
@@ -420,43 +341,36 @@ prthuman(const struct statvfs *sfsp, int64_t used, int64_t bavail)
 	    (int64_t)(num) * (int64_t)((fsbs) / (bs)))
 
 static void
-addstat(struct statvfs *totalfsp, const struct statvfs *sfsp)
+addstat(struct mntinfo *totalfsp, struct mntinfo *sfsp)
 {
-	uint64_t frsize;
+	uint64_t bsize;
 
-	frsize = sfsp->f_frsize / totalfsp->f_frsize;
-	totalfsp->f_blocks += sfsp->f_blocks * frsize;
-	totalfsp->f_bfree += sfsp->f_bfree * frsize;
-	totalfsp->f_bavail += sfsp->f_bavail * frsize;
-	totalfsp->f_bresvd += sfsp->f_bresvd * frsize;
+	bsize = sfsp->f_bsize / totalfsp->f_bsize;
+	totalfsp->f_blocks += sfsp->f_blocks * bsize;
+	totalfsp->f_bfree += sfsp->f_bfree * bsize;
+	totalfsp->f_bavail += sfsp->f_bavail * bsize;
 	totalfsp->f_files += sfsp->f_files;
 	totalfsp->f_ffree += sfsp->f_ffree;
-	totalfsp->f_favail += sfsp->f_favail;
-	totalfsp->f_fresvd += sfsp->f_fresvd;
 }
 
 /*
  * Print out status about a filesystem.
  */
 static void
-prtstat(const struct statvfs *sfsp, int maxwidth)
+prtstat(struct mntinfo *sfsp, int maxwidth)
 {
 	static long blocksize;
 	static int headerlen, timesthrough;
 	static const char *header;
 	static const char full[] = "100";
 	static const char empty[] = "  0";
+	struct statvfs *statvfs_sfsp = NULL;
 	int64_t used, availblks, inodes;
 	int64_t bavail;
 	char pb[64];
 	char mntfromname[sizeof(sfsp->f_mntfromname) + 10];
 
-	if (Wflag && sfsp->f_mntfromlabel[0]) {
-		snprintf(mntfromname, sizeof(mntfromname), "NAME=%s",
-		    sfsp->f_mntfromlabel);
-	} else {
-		strlcpy(mntfromname, sfsp->f_mntfromname, sizeof(mntfromname));
-	}
+	strlcpy(mntfromname, sfsp->f_mntfromname, sizeof(mntfromname));
 
 	if (gflag) {
 		/*
@@ -476,7 +390,7 @@ prtstat(const struct statvfs *sfsp, int maxwidth)
 					 * is of course the file
 					 * system's block size too.
 					 */
-		    sfsp->f_frsize);	/* not so surprisingly the
+		    sfsp->f_bsize);	/* not so surprisingly the
 					 * "fundamental file system
 					 * block size" is the frag
 					 * size.
@@ -491,11 +405,10 @@ prtstat(const struct statvfs *sfsp, int maxwidth)
 		    sfsp->f_fsid);
 		(void)printf("%10s fstype  %#15lx flag  %17ld filename "
 		    "length\n", sfsp->f_fstypename, sfsp->f_flag,
-		    sfsp->f_namemax);
+		    statvfs_sfsp->f_namemax);
 		(void)printf("%10lu owner %17" PRId64 " syncwrites %12" PRId64
 		    " asyncwrites\n\n", (unsigned long)sfsp->f_owner,
 		    sfsp->f_syncwrites, sfsp->f_asyncwrites);
-
 		/*
 		 * a concession by the structured programming police to the
 		 * indentation police....
@@ -566,7 +479,7 @@ prtstat(const struct statvfs *sfsp, int maxwidth)
 		}
 	}
 	used = sfsp->f_blocks - sfsp->f_bfree;
-	bavail = sfsp->f_bfree - sfsp->f_bresvd;
+	bavail = sfsp->f_bavail;
 	availblks = bavail + used;
 	if (Pflag) {
 		assert(hflag == 0);
@@ -578,9 +491,9 @@ prtstat(const struct statvfs *sfsp, int maxwidth)
 		 */
 		(void)printf("%s %" PRId64 " %" PRId64 " %" PRId64 " %s%% %s\n",
 		    mntfromname,
-		    fsbtoblk(sfsp->f_blocks, sfsp->f_frsize, blocksize),
-		    fsbtoblk(used, sfsp->f_frsize, blocksize),
-		    fsbtoblk(bavail, sfsp->f_frsize, blocksize),
+		    fsbtoblk(sfsp->f_blocks, sfsp->f_bsize, blocksize),
+		    fsbtoblk(used, sfsp->f_bsize, blocksize),
+		    fsbtoblk(bavail, sfsp->f_bsize, blocksize),
 		    availblks == 0 ? full : strspct(pb, sizeof(pb), used,
 		    availblks, 0), sfsp->f_mntonname);
 		/*
@@ -596,10 +509,10 @@ prtstat(const struct statvfs *sfsp, int maxwidth)
 		if (iflag)
 			(void)printf("%jd", sfsp->f_ffree);
 		else if (hflag)
-			prthumanval(true, bavail * sfsp->f_frsize, 1);
+			prthumanval(true, bavail * sfsp->f_bsize, 1);
 		else
 			(void)printf("%jd", fsbtoblk(bavail,
-			    sfsp->f_frsize, blocksize));
+			    sfsp->f_bsize, blocksize));
 
 		if (mntcount != 1)
 			(void)printf(" %s\n", sfsp->f_mntonname);
@@ -615,9 +528,9 @@ prtstat(const struct statvfs *sfsp, int maxwidth)
 	else
 		(void)printf("%*" PRId64 " %*" PRId64 " %*" PRId64,
 		    blksize_width,
-		    fsbtoblk(sfsp->f_blocks, sfsp->f_frsize, blocksize),
-		    blksize_width, fsbtoblk(used, sfsp->f_frsize, blocksize),
-		    blksize_width, fsbtoblk(bavail, sfsp->f_frsize, blocksize));
+		    fsbtoblk(sfsp->f_blocks, sfsp->f_bsize, blocksize),
+		    blksize_width, fsbtoblk(used, sfsp->f_bsize, blocksize),
+		    blksize_width, fsbtoblk(bavail, sfsp->f_bsize, blocksize));
 	(void)printf(" %3s%%",
 	    availblks == 0 ? full :
 	    strspct(pb, sizeof(pb), used, availblks, 0));

@@ -12,6 +12,7 @@ SUBDIRS = [
 	'cut',
 	'date',
 	'dd',
+	'df', 
 	'dirname',
 	'du',
 	'echo',

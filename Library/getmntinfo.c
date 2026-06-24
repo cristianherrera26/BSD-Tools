@@ -1,77 +1,100 @@
-/*	$NetBSD: getmntinfo.c,v 1.17 2012/03/20 16:36:05 matt Exp $	*/
-
-/*
- * Copyright (c) 1989, 1993
- *	The Regents of the University of California.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
-
-#include <sys/cdefs.h>
-#if defined(LIBC_SCCS) && !defined(lint)
-#if 0
-static char sccsid[] = "@(#)getmntinfo.c	8.1 (Berkeley) 6/4/93";
-#else
-__RCSID("$NetBSD: getmntinfo.c,v 1.17 2012/03/20 16:36:05 matt Exp $");
-#endif
-#endif /* LIBC_SCCS and not lint */
-
-#include "namespace.h"
-#include <sys/param.h>
-#include <sys/ucred.h>
-#include <sys/mount.h>
-
+#include <sys/stat.h>
+#include <sys/statvfs.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <mntent.h>
 #include <assert.h>
 #include <errno.h>
-#include <stdlib.h>
+#include <err.h>
 
-/*
- * Return information about mounted filesystems.
- */
+char *skipfs[] = {
+	"proc", "sys", "securityfs", "devpts",
+	"cgroup2", "bpf", "none", "systemd-1",
+	"portal", "gvfsd-fuse", "configfs", "debugfs",
+	"tracefs", "mqueue", "fusectl", "hugetlbfs", 
+	"binfmt_misc", NULL
+};
+
 int
-getmntinfo(struct statvfs **mntbufp, int flags)
+getmntinfo(struct mntinfo **mntbuf, bool hide)
 {
-	static struct statvfs *mntbuf;
-	static int mntsize;
-	static size_t bufsize;
+	struct mntinfo *list = NULL;
+	struct mntinfo *current = NULL;
+	struct mntent *ent = NULL;
+	int mntsize = 0;
+	FILE *fp = NULL;
+	struct statvfs svfsbuf;
+	struct stat stmnt;
 
-	if (mntsize <= 0 &&
-	    (mntsize = getvfsstat(NULL, (size_t)0, MNT_NOWAIT)) == -1)
-		return (0);
-	if (bufsize > 0 &&
-	    (mntsize = getvfsstat(mntbuf, bufsize, flags)) == -1)
-		return (0);
-	while (bufsize <= mntsize * sizeof(struct statvfs)) {
-		if (mntbuf)
-			free(mntbuf);
-		bufsize = (mntsize + 1) * sizeof(struct statvfs);
-		if ((mntbuf = malloc(bufsize)) == NULL)
-			return (0);
-		if ((mntsize = getvfsstat(mntbuf, bufsize, flags)) == -1)
-			return (0);
+#ifdef _PATH_MOUNTED
+	fp = setmntent(_PATH_MOUNTED, "r");
+#else
+	if (access("/proc/self/mounts", R_OK) == 0) {
+	    fp = setmntent("/proc/self/mounts", "r");
+	} else if (access("/proc/mounts", R_OK) == 0) {
+	    fp = setmntent("/proc/mounts", "r");
+	} else if (access("/etc/mtab", R_OK) == 0) {
+	    fp = setmntent("/etc/mtab", "r");
 	}
-	*mntbufp = mntbuf;
-	return (mntsize);
+#endif
+
+	if (fp == NULL)
+	    err(1, "setmntent");
+
+	while ((ent = getmntent(fp)) != NULL) {
+	    if (hide && isin_array(ent->mnt_fsname, skipfs))
+		continue;
+
+	    /* get stat(vfs) fields and copy those over */
+	    if (statvfs(ent->mnt_dir, &svfsbuf) == -1 || stat(ent->mnt_dir, &stmnt) == -1) {
+	        if ((errno == EACCES) || (errno == EPERM) || (errno == ENOTCONN)) continue;
+	        err(1, "statvfs");
+	    }
+
+	    /* allocate the entry */
+	    list = realloc(list, (mntsize + 1) * sizeof(*list));
+	    assert(list != NULL);
+	    current = list + mntsize;
+
+	    /* fill the struct with getmntent fields */
+	    current->f_fstypename = strdup(ent->mnt_type);
+	    current->f_mntfromname = strdup(ent->mnt_fsname);
+	    current->f_mntonname = strdup(ent->mnt_dir);
+	    current->f_opts = strdup(ent->mnt_opts);
+
+	    current->f_flag = svfsbuf.f_flag;
+	    current->f_blocks = svfsbuf.f_blocks;
+	    current->f_bsize = svfsbuf.f_bsize;
+	    current->f_bfree = svfsbuf.f_bfree;
+	    current->f_bavail = svfsbuf.f_bavail;
+	    current->f_files = svfsbuf.f_files;
+	    current->f_ffree = svfsbuf.f_ffree;
+
+	    current->f_dev = stmnt.st_dev;
+
+	    current->f_selected = 1;
+
+	    mntsize++;
+	}
+
+	endmntent(fp);
+
+	*mntbuf = list;
+	return mntsize;
+}
+
+void
+freemntinfo(struct mntinfo *mntbuf, int mntsize)
+{
+	int i = 0;
+
+	for (i = 0; i < mntsize; i++) {
+	    free(mntbuf[i].f_fstypename);
+	    free(mntbuf[i].f_mntfromname);
+	    free(mntbuf[i].f_mntonname);
+	    free(mntbuf[i].f_opts);
+	}
+
+	free(mntbuf);
 }
