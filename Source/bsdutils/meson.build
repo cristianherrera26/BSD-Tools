@@ -7,7 +7,8 @@ SUBDIRS = [ 	'col',
 		'nologin', 
 		'renice', 
 		'rev',
-		'whereis' 
+		'whereis',
+		'write'
 ]
 
 foreach i : SUBDIRS
