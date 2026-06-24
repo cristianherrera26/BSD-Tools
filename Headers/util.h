@@ -1,6 +1,7 @@
 #ifndef _UTIL_H
 #define _UTIL_H	1
 
+#include <sys/uio.h>
 #include <stdint.h>
 
 /* Definitions for the strpct() functions rounding modes */
@@ -20,5 +21,6 @@ uint32_t	strpct_round(uint32_t);
 
 char *flags_to_string(unsigned long flags, const char *def);
 int	expand_number(const char*, uint64_t*);
+char *ttymsg(struct iovec *iov, int iovlen, const char *tty, int tmout);
 
 #endif

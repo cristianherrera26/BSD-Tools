@@ -139,8 +139,8 @@ getutentries(const char *fname, struct utmpentry **epp)
 	setutent();
 	if ((etype & (1 << USER_PROCESS)) != 0) {
 		while ((what & 2) && (ut = getutent()) != NULL) {
-			if (fname == NULL && (*ut->ut_name == '\0' ||
-			    *ut->ut_line == '\0'))
+		if ((fname == NULL && (*ut->ut_name == '\0' ||
+			    *ut->ut_line == '\0')) || *ut->ut_line == '~')
 				continue;
 			/* Don't process entries that we have utmpx for */
 			for (ep = ehead; ep != NULL; ep = ep->next) {

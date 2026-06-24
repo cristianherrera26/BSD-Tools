@@ -7,6 +7,7 @@ SUBDIRS = [ 	'col',
 		'nologin', 
 		'renice', 
 		'rev',
+		'wall',
 		'whereis',
 		'write'
 ]

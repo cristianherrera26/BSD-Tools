@@ -1,0 +1,1 @@
+../write/term_chk.c

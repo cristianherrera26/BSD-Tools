@@ -1,6 +1,6 @@
 executable(
-	'write',
-	'write.c',
+	'wall',
+	'wall.c',
 	'utmpentry.c',
 	'term_chk.c',
 	include_directories : incdir,
@@ -9,4 +9,4 @@ executable(
 	install_dir : get_option('bindir')
 )
 
-install_man('write.1')
+install_man('wall.1')
