@@ -34,22 +34,8 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT(
-"@(#) Copyright (c) 1980, 1990, 1993, 1994\
- The Regents of the University of California.  All rights reserved.");
-#endif /* not lint */
-
-#ifndef lint
-#if 0
-static char sccsid[] = "@(#)df.c	8.7 (Berkeley) 4/2/94";
-#else
-__RCSID("$NetBSD: df.c,v 1.107 2026/04/08 00:58:36 kim Exp $");
-#endif
-#endif /* not lint */
-
 #include <sys/param.h>
+#include <sys/statvfs.h>
 #include <sys/stat.h>
 #include <sys/mount.h>
 
@@ -72,7 +58,7 @@ static void	 prtstat(const struct statvfs *, int);
 static int	 selected(const char *, size_t);
 static void	 maketypelist(char *);
 static size_t	 regetmntinfo(struct statvfs **, size_t);
-__dead static void usage(void);
+static void	 usage(void);
 static void	 prthumanval(bool, int64_t, int);
 static void	 prthuman(const struct statvfs *, int64_t, int64_t);
 
