@@ -6,6 +6,7 @@ SUBDIRS = [ 	'col',
 		'last',
 		'nologin', 
 		'renice', 
+		'rev',
 		'whereis' 
 ]
 

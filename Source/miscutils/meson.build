@@ -15,6 +15,7 @@ SUBDIRS = [ 	'apply',
 		'jot', 
 		'primes', 
 		'progress',
+		'rs',
 		'time', 
 		'unvis', 
 		'vis' ]

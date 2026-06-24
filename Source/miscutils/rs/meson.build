@@ -1,0 +1,11 @@
+executable(
+	'rs',
+	'rs.c',
+	include_directories : incdir,
+	c_args : [ '-Wno-deprecated-declarations' ],
+	link_with : libcompat,
+	install : true,
+	install_dir : get_option('bindir')
+)
+
+install_man('rs.1')
