@@ -39,6 +39,7 @@
 #include <fts.h>
 #include <grp.h>
 #include <locale.h>
+#include <time.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
@@ -396,7 +397,8 @@ rm_overwrite(char *file, struct stat *sbp)
 		if (mode == RAND_BYTES) {				\
 			for (i = 0; i < sizeof(buf); 			\
 			    i+= sizeof(u_int32_t))			\
-				*(int *)(buf + i) = arc4random();	\
+				srand(time(NULL));			\
+				*(int *)(buf + i) = rand();		\
 		}							\
 		wlen = len < (off_t)sizeof(buf) ? (size_t)len : sizeof(buf); \
 		if ((size_t)write(fd, buf, wlen) != wlen)		\
@@ -430,12 +432,8 @@ rm_overwrite(char *file, struct stat *sbp)
 	 * option 'c' "Overwrite all addressable locations with a single 
 	 * character."
 	*/
-#ifdef __GLIBC__
-	randint = arc4random();
-#else
 	srand(time(NULL));
 	randint = rand();
-#endif
 	randchar = *(char *)&randint;
 	WRITE_PASS(THIS_BYTE, randchar);
 
