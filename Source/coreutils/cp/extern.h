@@ -34,6 +34,8 @@
 #ifndef _EXTERN_H_
 #define _EXTERN_H_
 
+#include <signal.h>
+
 typedef struct {
 	char *p_end;			/* pointer to NULL at end of path */
 	char *target_end;		/* pointer to end of target base */
@@ -48,7 +50,6 @@ extern sig_atomic_t pinfo;
 
 #include <sys/cdefs.h>
 
-__BEGIN_DECLS
 int	copy_fifo(struct stat *, int);
 int	copy_file(FTSENT *, int);
 int	copy_link(FTSENT *, int);
@@ -58,6 +59,5 @@ int	setfile(struct stat *, int);
 int	preserve_dir_acls(struct stat *, char *, char *);
 int	preserve_fd_acls(int, int);
 void	usage(void) __attribute__((__noreturn__));
-__END_DECLS
 
 #endif /* !_EXTERN_H_ */

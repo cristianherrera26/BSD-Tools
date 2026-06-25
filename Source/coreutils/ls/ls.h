@@ -36,6 +36,8 @@
 
 #define NO_PRINT	1
 
+#include <stdint.h>
+
 /* POSIX (IEEE Std 1003.1-2001) says we should use 512 blocks */
 #define	POSIX_BLOCK_SIZE	512
 extern long blocksize;		/* block size units */
