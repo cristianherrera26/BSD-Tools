@@ -1,5 +1,8 @@
 project('BSD-Tools', 'c',
-	version : '11.99.6'
+	version : '11.99.6',
+	default_options : [
+		'c_std=c23',
+	]
 )
 
 cc = meson.get_compiler('c')
