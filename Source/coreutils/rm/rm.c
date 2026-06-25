@@ -429,8 +429,13 @@ rm_overwrite(char *file, struct stat *sbp)
 	 * DSS sanitization matrix "clear" for magnetic disks: 
 	 * option 'c' "Overwrite all addressable locations with a single 
 	 * character."
-	 */
+	*/
+#ifdef __GLIBC__
 	randint = arc4random();
+#else
+	srand(time(NULL));
+	randint = rand();
+#endif
 	randchar = *(char *)&randint;
 	WRITE_PASS(THIS_BYTE, randchar);
 
