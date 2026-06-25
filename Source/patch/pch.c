@@ -445,7 +445,7 @@ skip_to(LINENUM file_pos, LINENUM file_line)
 }
 
 /* Make this a function for better debugging.  */
-__attribute__((noreturn)) static void
+[[noretun]] static void
 malformed(void)
 {
 	fatal("malformed patch at line %ld: %s", p_input_line, buf);

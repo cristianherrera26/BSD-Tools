@@ -632,7 +632,7 @@ get_some_switches(void)
 	}
 }
 
-static void
+[[noreturn]] static void
 usage(void)
 {
 	fprintf(stderr,
