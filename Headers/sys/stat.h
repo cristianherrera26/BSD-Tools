@@ -10,6 +10,10 @@
 #define ALLPERMS (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO)
 #endif
 
+#ifndef DEFFILEMODE
+#define DEFFILEMODE (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)
+#endif
+
 struct mntinfo {
     char *f_mntfromname;          /* mnt_fsname from getmntent */
     char *f_mntonname;            /* mnt_dir from getmntent */
