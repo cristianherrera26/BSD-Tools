@@ -6,6 +6,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#infdef ALLPERMS
+#define ALLPERMS (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO)
+#endif
+
 struct mntinfo {
     char *f_mntfromname;          /* mnt_fsname from getmntent */
     char *f_mntonname;            /* mnt_dir from getmntent */

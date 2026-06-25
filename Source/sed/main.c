@@ -34,6 +34,7 @@
  * SUCH DAMAGE.
  */
 
+#include <sys/cdefs.h>
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/param.h>
@@ -109,7 +110,7 @@ u_long linenum;
 
 static void add_compunit(enum e_cut, char *);
 static void add_file(char *);
-static void usage(void) __attribute__((noreturn));
+static void usage(void);
 
 int
 main(int argc, char *argv[])
