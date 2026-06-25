@@ -57,7 +57,9 @@
 #include <util.h>
 
 #include "find.h"
+#ifndef ARG_MAX
 #define	ARG_MAX		 (256 * 1024)
+#endif
 #define	COMPARE(a, b) {							\
 	switch (plan->flags) {						\
 	case F_EQUAL:							\

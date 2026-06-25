@@ -66,7 +66,6 @@
 
 #include <sys/cdefs.h>
 #include <sys/types.h>
-#include <sys/poll.h>
 #include <sys/wait.h>
 
 #include <ctype.h>
@@ -80,6 +79,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <errno.h>
 
 
