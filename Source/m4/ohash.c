@@ -1,4 +1,4 @@
-/*	$NetBSD: ohash.c,v 1.2 2026/06/11 14:11:52 christos Exp $	*/
+/* $NetBSD: ohash.c,v 1.2 2026/06/11 14:11:52 christos Exp $	*/
 /* $OpenBSD: ohash.c,v 1.1 2014/06/02 18:52:03 deraadt Exp $ */
 
 /* Copyright (c) 1999, 2004 Marc Espie <espie@openbsd.org>
@@ -16,6 +16,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <sys/cdefs.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
