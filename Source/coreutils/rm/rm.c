@@ -387,6 +387,7 @@ rm_overwrite(char *file, struct stat *sbp)
 	off_t len;							\
 	size_t wlen, i;							\
 	char buf[8 * 1024];						\
+	srand(time(NULL));						\
 									\
 	if (fsync(fd) || lseek(fd, (off_t)0, SEEK_SET))			\
 		goto err;						\
@@ -396,9 +397,8 @@ rm_overwrite(char *file, struct stat *sbp)
 	for (len = sbp->st_size; len > 0; len -= wlen) {		\
 		if (mode == RAND_BYTES) {				\
 			for (i = 0; i < sizeof(buf); 			\
-			    i+= sizeof(u_int32_t))			\
-				srand(time(NULL));			\
-				*(int *)(buf + i) = rand();		\
+			    i+= sizeof(uint32_t))			\
+				*(uint32_t *)(buf + i) = rand();	\
 		}							\
 		wlen = len < (off_t)sizeof(buf) ? (size_t)len : sizeof(buf); \
 		if ((size_t)write(fd, buf, wlen) != wlen)		\

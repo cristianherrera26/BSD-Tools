@@ -63,9 +63,9 @@ struct numbering_property {
 #define NP_LAST		HEADER
 
 static struct numbering_property numbering_properties[NP_LAST + 1] = {
-	{ "footer",	number_none,	{ 0, 0, 0, 0 } },
+	{ "footer",	number_none, 	 { 0, 0, 0, 0 } },
 	{ "body",	number_nonempty, { 0, 0, 0, 0 } },
-	{ "header",	number_none,	{ 0, 0, 0, 0 } },
+	{ "header",	number_none,	 { 0, 0, 0, 0 } },
 };
 
 #define max(a, b)	((a) > (b) ? (a) : (b))

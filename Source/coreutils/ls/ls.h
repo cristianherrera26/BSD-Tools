@@ -60,7 +60,7 @@ extern int f_leafonly;		/* when recursing, print leaf names only */
 
 typedef struct {
 	FTSENT *list;
-	u_int64_t btotal;
+	uint64_t btotal;
 	int entries;
 	unsigned int maxlen;
 	int s_block;

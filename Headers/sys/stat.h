@@ -14,6 +14,10 @@
 #define DEFFILEMODE (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)
 #endif
 
+#ifndef S_BLKSIZE
+#define S_BLKSIZE	512
+#endif
+
 struct mntinfo {
     char *f_mntfromname;          /* mnt_fsname from getmntent */
     char *f_mntonname;            /* mnt_dir from getmntent */
