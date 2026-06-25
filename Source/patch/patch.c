@@ -105,7 +105,7 @@ static bool	spew_output(void);
 static void	dump_line(LINENUM, bool);
 static bool	patch_match(LINENUM, LINENUM, LINENUM);
 static bool	similar(const char *, const char *, ssize_t);
-[[noreturn]] static void	usage(void);
+static void	usage(void);
 
 /* true if -E was specified on command line.  */
 static bool	remove_empty_files = false;
@@ -632,7 +632,7 @@ get_some_switches(void)
 	}
 }
 
-[[noreturn]] static void
+static void
 usage(void)
 {
 	fprintf(stderr,

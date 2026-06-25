@@ -164,7 +164,7 @@ static struct t_op const *t_wp_op;
 #endif
 
 #ifndef SMALL
-__attribute__((noreturn)) static void syntax(const char *, const char *);
+static void syntax(const char *, const char *);
 static int oexpr(enum token);
 static int aexpr(enum token);
 static int nexpr(enum token);
