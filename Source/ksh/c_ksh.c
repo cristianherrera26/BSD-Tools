@@ -4,6 +4,7 @@
  * built-in Korn commands: c_*
  */
 
+#include <sys/cdefs.h>
 #include <sys/stat.h>
 #include <ctype.h>
 
