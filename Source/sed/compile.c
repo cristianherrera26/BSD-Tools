@@ -60,12 +60,12 @@ static struct labhash {
 	int	lh_ref;
 } *labels[LHSZ];
 
-static char	 *compile_addr(char *, struct s_addr *);
+[[noreturn]] static char	 *compile_addr(char *, struct s_addr *);
 static char	 *compile_ccl(char **, char *);
 static char	 *compile_delimited(char *, char *, int);
 static char	 *compile_flags(char *, struct s_subst *);
 static regex_t	 *compile_re(char *, int);
-static char	 *compile_subst(char *, struct s_subst *);
+[[noreturn]] static char	 *compile_subst(char *, struct s_subst *);
 static char	 *compile_text(void);
 static char	 *compile_tr(char *, struct s_tr **);
 static struct s_command
@@ -606,7 +606,7 @@ parse_escapes(char *buf)
  * point to a saved copy of it.  Nsub is the number of parenthesized regular
  * expressions.
  */
-static char *
+[[noreturn]] static char *
 compile_subst(char *p, struct s_subst *s)
 {
 	static char lbuf[_POSIX2_LINE_MAX + 1];
@@ -926,7 +926,7 @@ compile_text(void)
  * Get an address and return a pointer to the first character after
  * it.  Fill the structure pointed to according to the address.
  */
-static char *
+[[noreturn]] static char *
 compile_addr(char *p, struct s_addr *a)
 {
 	char *end, re[_POSIX2_LINE_MAX + 1];
