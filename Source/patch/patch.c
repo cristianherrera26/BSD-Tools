@@ -105,7 +105,7 @@ static bool	spew_output(void);
 static void	dump_line(LINENUM, bool);
 static bool	patch_match(LINENUM, LINENUM, LINENUM);
 static bool	similar(const char *, const char *, ssize_t);
-__attribute__((noreturn)) static void	usage(void);
+[[noreturn]] static void	usage(void);
 
 /* true if -E was specified on command line.  */
 static bool	remove_empty_files = false;
