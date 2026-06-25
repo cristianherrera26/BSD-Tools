@@ -58,8 +58,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define __MKTEMP_OK__	/* All uses of mktemp have been checked */
-
 #define MAXBSIZE	(64 * 1024)
 #define HAVE_FUTIMES 1
 #define HAVE_POSIX_SPAWN 1
@@ -438,8 +436,14 @@ do_link(char *from_name, char *to_name)
 	if (dorename) {
 		(void)snprintf(tmpl, sizeof(tmpl), "%s.inst.XXXXXX", to_name);
 		/* This usage is safe. */
-		if (mktemp(tmpl) == NULL)
-			err(EXIT_FAILURE, "%s: mktemp", tmpl);
+		if ((ret = mkstemp(tmpl)) < 0)
+			err(1, "mkstemp");
+		else {
+			close(ret);
+			if (unlink(tmpl) < 0)
+				err(1, "unlink %s", tmpl);
+		}
+
 		ret = link(from_name, tmpl);
 		if (ret == 0) {
 			ret = rename(tmpl, to_name);
@@ -466,12 +470,18 @@ static void
 do_symlink(char *from_name, char *to_name)
 {
 	char tmpl[MAXPATHLEN];
+	int ret;
 
 	if (dorename) {
 		(void)snprintf(tmpl, sizeof(tmpl), "%s.inst.XXXXXX", to_name);
 		/* This usage is safe. */
-		if (mktemp(tmpl) == NULL)
-			err(EXIT_FAILURE, "%s: mktemp", tmpl);
+		if ((ret = mkstemp(tmpl)) < 0)
+			err(EXIT_FAILURE, "%s: mkstemp", tmpl);
+		else {
+			close(ret);
+			if (unlink(tmpl) < 0)
+				err(1, "unlink %s", tmpl);
+		}
 
 		if (symlink(from_name, tmpl) == -1)
 			err(EXIT_FAILURE, "symlink %s -> %s", from_name, tmpl);
