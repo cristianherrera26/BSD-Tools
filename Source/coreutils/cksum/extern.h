@@ -38,7 +38,6 @@
 #include <sys/cdefs.h>
 #include "crc_extern.h"
 
-__BEGIN_DECLS
 void	pcrc(char *, uint32_t, off_t);
 void	psum1(char *, uint32_t, off_t);
 void	psum2(char *, uint32_t, off_t);
@@ -85,4 +84,3 @@ void	SHA512_String(const char *);
 void	SHA512_TimeTrial(void);
 void	SHA512_TestSuite(void);
 void	SHA512_Filter(int);
-__END_DECLS
