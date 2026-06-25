@@ -670,7 +670,7 @@ yylex(void)
 /*
  * Print error message and exit with error 2 (syntax error).
  */
-static __printflike(1, 2) void
+static void
 yyerror(const char *fmt, ...)
 {
 	va_list arg;

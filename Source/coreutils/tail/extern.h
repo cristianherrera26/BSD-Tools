@@ -43,8 +43,8 @@ void reverse(FILE *, enum STYLE, off_t, struct stat *);
 int displaybytes(FILE *, off_t);
 int displaylines(FILE *, off_t);
 
-void xerr(int fatal, const char *fmt, ...) __printflike(2, 3);
-void xerrx(int fatal, const char *fmt, ...) __printflike(2, 3);
+void xerr(int fatal, const char *fmt, ...);
+void xerrx(int fatal, const char *fmt, ...);
 void ierr(void);
 void oerr(void);
 

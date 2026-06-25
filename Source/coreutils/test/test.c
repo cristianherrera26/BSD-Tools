@@ -189,10 +189,10 @@ static int three_arg(const char *, const char *, const char *);
 static int four_arg(const char *, const char *, const char *, const char *);
 
 #if defined(SHELL)
-extern void error(const char *, ...) __attribute__((noreturn)) __printflike(1, 2);
+extern void error(const char *, ...);
 extern void *ckmalloc(size_t);
 #else
-static void error(const char *, ...) __attribute__((noreturn)) __printflike(1, 2);
+static void error(const char *, ...);
 
 static void
 error(const char *msg, ...)

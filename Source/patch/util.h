@@ -37,16 +37,16 @@ char		*checked_in(char *);
 int		backup_file(const char *);
 int		move_file(const char *, const char *);
 int		copy_file(const char *, const char *);
-void		say(const char *, ...) __printflike(1, 2);
-void		fatal(const char *, ...) __printflike(1, 2) __attribute__((noreturn));
-void		pfatal(const char *, ...) __printflike(1, 2) __attribute__((noreturn));
-void		ask(const char *, ...) __printflike(1, 2);
+void		say(const char *, ...);
+void		fatal(const char *, ...);
+void		pfatal(const char *, ...);
+void		ask(const char *, ...);
 char		*savestr(const char *);
 void		set_signals(int);
 void		ignore_signals(void);
 void		makedirs(const char *, bool);
-void		version(void) __attribute__((noreturn));
-void		my_exit(int) __attribute__((noreturn));
+void		version(void);
+void		my_exit(int);
 void		*pch_realloc(void *, size_t, size_t);
 
 /* in mkpath.c */

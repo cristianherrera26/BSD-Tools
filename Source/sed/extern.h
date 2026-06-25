@@ -56,5 +56,5 @@ int	 lastline(void);
 void	 process(void);
 void	 resetstate(void);
 char	*strregerror(int, regex_t *);
-__attribute__((noreturn)) void	sederr(const char *, ...) __printflike(1, 2);
-void	sedwarn(const char *, ...) __printflike(1, 2);
+void	sederr(const char *, ...);
+void	sedwarn(const char *, ...);

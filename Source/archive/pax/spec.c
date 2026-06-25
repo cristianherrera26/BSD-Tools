@@ -91,7 +91,7 @@ static	void	set(char *, NODE *);
 static	void	unset(char *, NODE *);
 static	NODE	*addchild(NODE *, NODE *);
 static	int	nodecmp(const NODE *, const NODE *);
-static	int	appendfield(FILE *, int, const char *, ...) __printflike(3, 4);
+static	int	appendfield(FILE *, int, const char *, ...);
 
 #define REPLACEPTR(x,v)	do { if ((x)) free((x)); (x) = (v); } while (0)
 
