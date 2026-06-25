@@ -48,8 +48,8 @@ libcrypto = dependency(
 	required : false
 )
 
-libcrypt = dependency(
-	'libcrypt',
+libcrypt = cc.find_library(
+	'crypt',
 	required : false
 )
 
