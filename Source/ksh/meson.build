@@ -28,7 +28,7 @@ executable(
 	'version.c',
 	'vi.c',
 	include_directories : incdir,
-	c_args : [ '-Wno-deprecated-non-prototype' ],
+	c_args : [ '-Wno-deprecated-non-prototype', '-Wno-old-style-definition' ],
 	link_with : libcompat,
 	install : true,
 	install_dir : get_option('bindir')

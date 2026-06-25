@@ -20,6 +20,7 @@
 /*
  * functions needed to support gnu-m4 extensions, including a fake freezing
  */
+#include <sys/cdefs.h>
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/wait.h>
