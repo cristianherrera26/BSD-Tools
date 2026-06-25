@@ -29,6 +29,7 @@
  * SUCH DAMAGE.
  */
 
+#include <sys/ttydefaults.h>
 #include <sys/types.h>
 
 #include <err.h>
@@ -44,7 +45,6 @@
 #include "stty.h"
 #include "extern.h"
 
-__BEGIN_DECLS
 void	f_all(struct info *);
 void	f_cbreak(struct info *);
 void	f_columns(struct info *);
@@ -61,7 +61,6 @@ void	f_sane(struct info *);
 void	f_size(struct info *);
 void	f_speed(struct info *);
 void	f_tty(struct info *);
-__END_DECLS
 
 static const struct key {
 	const char *name;			/* name */
