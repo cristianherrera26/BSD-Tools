@@ -29,6 +29,7 @@
  * SUCH DAMAGE.
  */
 
+#include <sys/ttydefaults.h>
 #include <sys/types.h>
 
 #include <err.h>

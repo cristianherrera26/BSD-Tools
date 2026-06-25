@@ -211,8 +211,13 @@ f_insane(struct info *ip)
 		for (f = 0; f < NCCS; f++) {
 			ip->t.c_cc[f] = random() & 0xFF;
 		}
+#ifdef __GLIBC__
 		ip->t.c_ispeed = random();
 		ip->t.c_ospeed = random();
+#else
+		ip->t.__c_ispeed = random();
+		ip->t.__c_ospeed = random();
+#endif
 	}
     
 	ip->set = 1;
