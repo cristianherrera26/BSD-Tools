@@ -51,8 +51,8 @@ static void usage(void);
 #define	PRINT_VERSION			(1 << 3)
 #define	PRINT_MACHINE			(1 << 4)
 #define	PRINT_PROCESSOR			(1 << 5)
-#define	PRINT_ALL		\
-    (PRINT_SYSNAME|PRINT_NODENAME|PRINT_RELEASE|PRINT_VERSION|PRINT_MACHINE)
+#define	PRINT_ALL	\
+	(PRINT_SYSNAME|PRINT_NODENAME|PRINT_RELEASE|PRINT_VERSION|PRINT_MACHINE)
 
 int
 main(int argc, char **argv)

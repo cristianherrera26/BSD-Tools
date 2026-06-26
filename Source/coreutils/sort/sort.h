@@ -96,8 +96,8 @@
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
 #define	FCLOSE(file) {							\
-	if (EOF == fclose(file))					\
-		err(2, "%p", file);					\
+	if (fclose(file) == EOF)					\
+		err(2, NULL);						\
 }
 
 #define	EWRITE(ptr, size, n, f, fmt) {					\

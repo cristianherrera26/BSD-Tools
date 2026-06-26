@@ -7,7 +7,7 @@ const char
 *user_from_uid(uid_t uid, int nouser)
 {
 	struct passwd *pw = getpwuid(uid);
-	char *buf = NULL;
+	static char buf[128];
 	if (!pw)
 		err(1, "getpwuid");
 	if (!pw->pw_name && nouser)

@@ -6,7 +6,7 @@
 const char
 *group_from_gid(gid_t gid, int nogroup)
 {	
-	char *buf = NULL;
+	static char buf[128];
 	struct group *gr = getgrgid(gid);
 	if (!gr)
 		err(1, "getgrgid");

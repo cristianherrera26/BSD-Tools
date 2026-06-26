@@ -3,6 +3,8 @@
 
 #include <sys/uio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <err.h>
 
 /* Definitions for the strpct() functions rounding modes */
 #define	STRPCT_RTN		0U	/* Round to nearest */
@@ -22,5 +24,32 @@ uint32_t	strpct_round(uint32_t);
 char *flags_to_string(unsigned long flags, const char *def);
 int	expand_number(const char*, uint64_t*);
 char *ttymsg(struct iovec *iov, int iovlen, const char *tty, int tmout);
+
+static inline void __used
+*ecalloc(size_t n, size_t s)
+{
+	void *p = calloc(n, s);
+	if (!p)
+		err(1, "calloc");
+	return p;
+}
+
+static inline void __used
+*emalloc(size_t n)
+{
+	void *p = malloc(n);
+	if (!p)
+		err(1, "malloc");
+	return p;
+}
+
+static inline void __used
+*erealloc(void *v, size_t s)
+{
+	void *p = realloc(v, s);
+	if (!p)
+		err(1, "realloc");
+	return p;
+}
 
 #endif

@@ -1,6 +1,6 @@
 SUBDIRS = [ 'compress', 'pax' ]
 
-if libztsd.found() 
+if libz.found() and libztsd.found() and libbz2.found() and liblzma.found()
 	SUBDIRS += 'gzip'
 endif
 

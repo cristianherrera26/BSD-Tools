@@ -131,9 +131,7 @@ radix_sort(RECHEADER **a, RECHEADER **ta, int n)
 		 */
 		if (sp + nc > s + stack_size) {
 			stack_size *= 2;
-			sp1 = realloc(s, stack_size * sizeof *s);
-			if (!sp1)
-				err(1, "realloc");
+			sp1 = erealloc(s, stack_size * sizeof *s);
 			sp = sp1 + (sp - s);
 			s = sp1;
 		}

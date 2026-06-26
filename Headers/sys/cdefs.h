@@ -15,4 +15,5 @@
 #define __predict_false(exp)			__builtin_expect((exp) ? 1 : 0, 0)
 #define	__USE(a) (/*LINTED*/(void)(a))
 
+#define __used	__attribute__((used))
 #endif

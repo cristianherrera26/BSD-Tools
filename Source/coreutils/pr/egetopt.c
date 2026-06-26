@@ -99,7 +99,7 @@ egetopt(int nargc, char * const *nargv, const char *ostr)
 	 * check option letter
 	 */
 	if ((eoptopt = (int)*place++) == (int)':' || (eoptopt == (int)'?') ||
-	    !(oli = strchr(ostr, eoptopt))) {
+	    !(oli = strchr((char *)ostr, eoptopt))) {
 		/*
 		 * if the user didn't specify '-' as an option,
 		 * assume it means -1 when by itself.

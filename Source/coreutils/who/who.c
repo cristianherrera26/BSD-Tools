@@ -193,8 +193,7 @@ static void
 who_am_i(const char *fname, int show_labels)
 {
 	struct passwd *pw;
-	const char *p;
-	char *t;
+	char *p, *t;
 	time_t now;
 	struct utmpentry *ehead, *ep;
 

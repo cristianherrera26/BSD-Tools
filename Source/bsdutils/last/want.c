@@ -255,7 +255,7 @@ wtmp(const char *file, int namesz, int linesz, int hostsz, int numeric)
 	}
 	fulltime = 1;	/* show full time */
 	crmsg = fmttime(seentime, FULLTIME);
-	if ((ct = strrchr(file, '/')) != NULL)
+	if ((ct = strrchr((char *)file, '/')) != NULL)
 		ct++;
 	printf("\n%s begins %s\n", ct ? ct : file, crmsg);
 }

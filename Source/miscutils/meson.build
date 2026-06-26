@@ -6,7 +6,6 @@ SUBDIRS = [ 	'apply',
 		'c17',
 		'c89', 
 		'c99',
-		'cal', 
 		'calendar', 
 		'column', 
 		'domainname', 
@@ -19,6 +18,10 @@ SUBDIRS = [ 	'apply',
 		'time', 
 		'unvis', 
 		'vis' ]
+
+if libncurses.found()
+	SUBDIRS += 'cal'
+endif
 
 foreach i : SUBDIRS
 	subdir(i)
